@@ -22,7 +22,7 @@ using std::endl;
 
 #include <random>
 
-#define MIN_POINT_PLACEMENT_THRESHOLD 0.03
+#define MIN_POINT_PLACEMENT_THRESHOLD 0.05
 #define GLOBAL_POINTSIZE 7.5f
 
 //**********************************************

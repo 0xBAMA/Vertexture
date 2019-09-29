@@ -35,12 +35,11 @@ main()
       gl_FragDepth = orig;
 
       if(dist < 0.4)
-        gl_FragDepth = orig + 0.01;
+        gl_FragDepth = orig + 0.002;
       else if(dist < 0.3)
-        gl_FragDepth = orig + 0.02;
+        gl_FragDepth = orig + 0.004;
       else if(dist < 0.2)
-        gl_FragDepth = orig + 0.03;
-      //set depth
+        gl_FragDepth = orig + 0.005;
     }
     else
     {

@@ -217,8 +217,6 @@ int main(int argc, char **argv)
   // glutFullScreen();
 
 
-  // glutGameModeString("640x480:16@60");   //not working
-  // glutEnterGameMode();
 
   glewInit();
 
@@ -226,9 +224,18 @@ int main(int argc, char **argv)
 
   // create_menu();
 
+
+
+  // glutGameModeString("640x480");   //not working, crashes shit
+  // glutEnterGameMode();
+
+
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
   // glutReshapeFunc(reshape);
+
+
+
 
   glutMainLoop();
   return(EXIT_SUCCESS);

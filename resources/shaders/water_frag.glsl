@@ -21,8 +21,8 @@ main()
 
     if((fcymod3 == 0) || (fcxmod2 == 0)) //add  '&& (fcxmod2 == 0)' for x based stuff
     {
-      // discard;
-      gl_FragColor.r = 0.1;
+      discard;
+      // gl_FragColor.r = 0.1;
     }
 
 
@@ -44,11 +44,11 @@ main()
       gl_FragDepth = orig;
 
       if(dist < 0.4)
-        gl_FragDepth = orig + 0.01;
+        gl_FragDepth = orig + 0.002;
       else if(dist < 0.3)
-        gl_FragDepth = orig + 0.02;
+        gl_FragDepth = orig + 0.004;
       else if(dist < 0.2)
-        gl_FragDepth = orig + 0.03;
+        gl_FragDepth = orig + 0.005;
     }
     else
     {
