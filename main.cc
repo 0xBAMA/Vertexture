@@ -29,6 +29,28 @@ int temp_time = animation_time;
 
 
 
+
+//DEBUG STUFF
+
+void GLAPIENTRY
+MessageCallback( GLenum source,
+                 GLenum type,
+                 GLuint id,
+                 GLenum severity,
+                 GLsizei length,
+                 const GLchar* message,
+                 const void* userParam )
+{
+  fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+           ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+            type, severity, message );
+}
+
+
+
+
+
+
 void init()
 {
   ground = new GroundModel();
@@ -62,6 +84,18 @@ void init()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glEnable(GL_LINE_SMOOTH);
+
+
+
+
+
+  //DEBUG
+
+  glEnable              ( GL_DEBUG_OUTPUT );
+  glDebugMessageCallback( MessageCallback, 0 );
+
+
+
 
   // double phi = (1 + std::sqrt(5.0))/2.0;  //golden ratio, used to compute icosahedron
   // glClearColor(1/phi, 1/phi, 1/phi, 1.0); // grey background
@@ -161,6 +195,9 @@ extern "C" void keyboard(unsigned char key, int x, int y)
 //
 //   glutAttachMenu(GLUT_RIGHT_BUTTON);
 // }
+
+
+
 
 
 //----------------------------------------------------------------------------
