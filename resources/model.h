@@ -610,7 +610,8 @@ void WaterModel::generate_points()
 
 void WaterModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+  // if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD * 5)
   {//add points
     //triangle 1 ABC
     // points.push_back(a);
