@@ -4,9 +4,12 @@ in  vec3 vPosition;
 in  vec3 vNormal;
 in  vec3 vColor;
 out vec4 color;
+out float abort;
 
 uniform int t;
 uniform mat4 proj;
+
+uniform float thresh;
 
 uniform sampler2D tex;
 
@@ -29,9 +32,18 @@ void main()
 
   vec4 tref = texture(tex, 0.25 * vPosition.xy + vec2(t/10000.0));
   // vec4 tref = texture(tex, 0.25 * vPosition.xy);
-  // vec4 tref = vec4(0.5); //no displacement
 
-  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.2 * vec4(0,0,tref.z - 0.3,0);
+  tref.x += 0.01 * sin(vPosition.x + 0.02 * t) + 0.05 * cos(vPosition.y + 0.01 * t);
+
+
+  abort = 0.0f;
+  if(tref.x > thresh)
+    abort = 1.0f;
+
+
+
+  // vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.1 * (vec4(0,0,tref.z,0) - vec4(0.5)); //old
+  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + vec4(0.0f, 0.0f, 0.05f, 0.0f);
 
   // gl_Position = proj * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 0.003*t) * vPosition_local;
 
@@ -40,8 +52,7 @@ void main()
 
   // color = vec4(vPosition.x, vPosition.y, vPosition.z, 1.0f);
 
-  color = tref;
-  color.r *= 0.9;
-  color.g *= 0.5;
-  color.b *= 0.2;
+  // color = tref;
+  color = vec4(0.1, 0.3, 0.5, 0.1618);
+
 }

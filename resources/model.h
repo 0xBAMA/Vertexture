@@ -22,6 +22,9 @@ using std::endl;
 
 #include <random>
 
+#define MIN_POINT_PLACEMENT_THRESHOLD 0.03
+#define GLOBAL_POINTSIZE 7.5f
+
 //**********************************************
 
 // GLEW
@@ -95,6 +98,11 @@ bool planetest(glm::vec3 plane_point, glm::vec3 plane_norm, glm::vec3 test_point
 }
 
 
+
+
+
+
+
 //******************************************************************************
 //  Class: GroundModel
 //
@@ -132,8 +140,8 @@ public:
 
   void set_time(int tin)        {time = tin;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
-  void toggle_scanlines()       {scan = scan ? 0 : 1;}
-  void toggle_depthcolor()      {dcolor = dcolor ? 0 : 1;}
+
+
 
 
 private:
@@ -153,11 +161,10 @@ private:
 //UNIFORM LOCATIONS
   GLuint uTime;   //animation time
   GLuint uProj;   //projection matrix
-  // GLuint uScan;   //draw scan lines true/false
-  // GLuint uDcol;   //color fragments based on depth
+
 
 //VALUES OF THOSE UNIFORMS
-  int time, scan, dcolor;
+  int time;
   glm::mat4 proj;
 
   void generate_points();
@@ -235,6 +242,7 @@ GroundModel::GroundModel()
 
 
 
+
   //THE TEXTURE
 
   std::vector<unsigned char> image;
@@ -269,7 +277,7 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  glPointSize(7.5);
+  glPointSize(GLOBAL_POINTSIZE);
 
 }
 
@@ -286,7 +294,8 @@ void GroundModel::generate_points()
 
   glm::vec3 a, b, c, d;
 
-  float scale = 0.9f;
+  float scale = 1.618f;
+  // float scale = 0.9f;
 
   a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
   b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
@@ -303,7 +312,7 @@ void GroundModel::generate_points()
 
 void GroundModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  if(glm::distance(a, b) < 0.01)
+  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
   {//add points
     //triangle 1 ABC
     // points.push_back(a);
@@ -355,6 +364,593 @@ void GroundModel::display()
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
   // glUniform1i(uScan, scan);
   // glUniform1i(uDcol, dcolor);
+
+  glDrawArrays(GL_POINTS, 0, num_pts);
+
+  // glDrawArrays(GL_TRIANGLES, 0, num_pts);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//******************************************************************************
+//  Class: WaterModel
+//
+//  Purpose:  To represent the ground on the GPU, and everything that goes along
+//        with displaying this ball to the user.
+//
+//  Functions:
+//
+//    Constructor:
+//        Takes no arguments, calls generate_points() to create geometry. Then
+//        buffers all this data to the GPU memory.
+//
+//    Setters:
+//        Used to update the values of the uniform variables.
+//
+//    Generate Points:
+//        Creates a square, subdivides the faces several times, and creates
+//        triangles to span the shape. This data is used to populate the
+//        vectors containing point data.
+//
+//    Display:
+//        Makes sure the correct shader is being used, that the correct buffers
+//        are bound, that the vertex attributes are set up, and that all the
+//        latest values of the uniform variables are sent to the GPU.
+//******************************************************************************
+
+
+class WaterModel
+{
+public:
+
+  WaterModel();
+
+  void display();
+
+  void set_time(int tin)        {time = tin;}
+  void set_proj(glm::mat4 pin)  {proj = pin;}
+
+  void increase_thresh()        {thresh += 0.01; cout << thresh << endl;}
+  void decrease_thresh()        {thresh -= 0.01; cout << thresh << endl;}
+
+
+private:
+  GLuint vao;
+  GLuint buffer;
+  GLuint tex;
+
+  GLuint shader_program;
+
+  int num_pts; //how many points?
+
+//VERTEX ATTRIB LOCATIONS
+  GLuint vPosition;
+  // GLuint vNormal;
+  // GLuint vColor;
+
+//UNIFORM LOCATIONS
+  GLuint uTime;   //animation time
+  GLuint uProj;   //projection matrix
+  GLuint uThresh;   //cutoff for water
+
+
+//VALUES OF THOSE UNIFORMS
+  int time;
+  float thresh;
+  glm::mat4 proj;
+
+  void generate_points();
+  void subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d);
+
+  std::vector<glm::vec3> points;    //add the 1.0 w value in the shader
+  // std::vector<glm::vec3> normals;
+  // std::vector<glm::vec3> colors;
+};
+
+  //****************************************************************************
+  //  Function: WaterModel Constructor
+  //
+  //  Purpose:
+  //    Calls generate_points() and then sets up everything related to the GPU
+  //****************************************************************************
+
+
+WaterModel::WaterModel()
+{
+
+  //initialize all the vectors
+  points.clear();
+
+  //fill those vectors with geometry
+  generate_points();
+
+
+//SETTING UP GPU STUFF
+  //VAO
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+
+  //BUFFER, SEND DATA
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+  int num_bytes_points = sizeof(glm::vec3) * points.size();
+  // int num_bytes_normals = sizeof(glm::vec3) * normals.size();
+  // int num_bytes_colors = sizeof(glm::vec3) * colors.size();
+
+  // glBufferData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals + num_bytes_colors, NULL, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, num_bytes_points, NULL, GL_STATIC_DRAW);
+
+  glBufferSubData(GL_ARRAY_BUFFER, 0, num_bytes_points, &points[0]);
+  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points, num_bytes_normals, &normals[0]);
+  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals, num_bytes_colors, &colors[0]);
+
+  //SHADERS (COMPILE, USE)
+
+  Shader s("resources/shaders/water_vert.glsl", "resources/shaders/water_frag.glsl");
+
+  shader_program = s.Program;
+
+  glUseProgram(shader_program);
+
+  //VERTEX ATTRIB AND UNIFORM LOCATIONS
+
+  // Initialize the vertex position attribute from the vertex shader
+  vPosition = glGetAttribLocation(shader_program, "vPosition");
+  glEnableVertexAttribArray(vPosition);
+  glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, ((GLvoid*) (0)));
+
+  //UNIFORMS
+  uTime = glGetUniformLocation(shader_program, "t");
+  glUniform1i(uTime, time);
+
+  uProj = glGetUniformLocation(shader_program, "proj");
+  proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
+  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+
+  thresh = 0.56f;
+  uThresh = glGetUniformLocation(shader_program, "thresh");
+  glUniform1f(uThresh, thresh);
+
+
+
+
+
+  //THE TEXTURE
+
+  std::vector<unsigned char> image;
+
+  unsigned width, height;
+  unsigned error = lodepng::decode(image, width, height, "resources/rock_cave.png", LodePNGColorType::LCT_RGBA, 8);
+
+  // for(auto el:image)
+  // {
+  //   cout << el;  //I'm getting an image...
+  // }
+
+  // If there's an error, display it.
+  if(error != 0) {
+    std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
+  }
+
+  glEnable(GL_TEXTURE_2D);
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  glPointSize(GLOBAL_POINTSIZE);
+
+}
+
+  //****************************************************************************
+  //  Function: WaterModel::generate_points()
+  //
+  //  Purpose:
+  //    This function produces all the data for representing this object.
+  //****************************************************************************
+
+void WaterModel::generate_points()
+{
+  //GENERATING GEOMETRY
+
+  glm::vec3 a, b, c, d;
+
+  // float scale = 0.9f;
+  float scale = 1.618f;
+
+  a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
+  b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
+  c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
+  d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
+
+  subd_square(a, b, c, d);
+
+  num_pts = points.size();
+
+  // cout << "num_pts is " << num_pts << endl;
+
+}
+
+void WaterModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
+{
+  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+  {//add points
+    //triangle 1 ABC
+    // points.push_back(a);
+    // points.push_back(b);
+    // points.push_back(c);
+    // //triangle 2 BCD
+    // points.push_back(b);
+    // points.push_back(c);
+    // points.push_back(d);
+
+    //middle
+    points.push_back((a+b+c+d)/4.0f);
+  }
+  else
+  { //recurse
+    glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
+
+    glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
+    glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
+    glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
+    glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
+
+    subd_square(abmidp, b, center, bdmidp);
+    subd_square(a, abmidp, acmidp, center);
+    subd_square(center, bdmidp, cdmidp, d);
+    subd_square(acmidp, center, c, cdmidp);
+  }
+}
+
+
+
+
+  //****************************************************************************
+  //  Function: WaterModel::display()
+  //
+  //  Purpose:
+  //    This function does all the setup for the buffers and uniforms and then
+  //    issues a draw call for the geometry representing this object
+  //****************************************************************************
+
+void WaterModel::display()
+{
+  glBindVertexArray(vao);
+  glUseProgram(shader_program);
+
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  glUniform1i(uTime, time);
+  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+  glUniform1f(uThresh, thresh);
+
+  glDrawArrays(GL_POINTS, 0, num_pts);
+
+  // glDrawArrays(GL_TRIANGLES, 0, num_pts);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//******************************************************************************
+//  Class: CloudModel
+//
+//  Purpose:  To represent the ground on the GPU, and everything that goes along
+//        with displaying this ball to the user.
+//
+//  Functions:
+//
+//    Constructor:
+//        Takes no arguments, calls generate_points() to create geometry. Then
+//        buffers all this data to the GPU memory.
+//
+//    Setters:
+//        Used to update the values of the uniform variables.
+//
+//    Generate Points:
+//        Creates a square, subdivides the faces several times, and creates
+//        triangles to span the shape. This data is used to populate the
+//        vectors containing point data.
+//
+//    Display:
+//        Makes sure the correct shader is being used, that the correct buffers
+//        are bound, that the vertex attributes are set up, and that all the
+//        latest values of the uniform variables are sent to the GPU.
+//******************************************************************************
+
+
+class CloudModel
+{
+public:
+
+  CloudModel();
+
+  void display();
+
+  void set_time(int tin)        {time = tin;}
+  void set_proj(glm::mat4 pin)  {proj = pin;}
+
+  void increase_thresh()        {thresh += 0.01; cout << thresh << endl;}
+  void decrease_thresh()        {thresh -= 0.01; cout << thresh << endl;}
+
+
+private:
+  GLuint vao;
+  GLuint buffer;
+  GLuint tex;
+
+  GLuint shader_program;
+
+  int num_pts; //how many points?
+
+//VERTEX ATTRIB LOCATIONS
+  GLuint vPosition;
+  // GLuint vNormal;
+  // GLuint vColor;
+
+//UNIFORM LOCATIONS
+  GLuint uTime;   //animation time
+  GLuint uProj;   //projection matrix
+  GLuint uThresh;   //cutoff for water
+
+
+//VALUES OF THOSE UNIFORMS
+  int time;
+  float thresh;
+  glm::mat4 proj;
+
+  void generate_points();
+  void subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d);
+
+  std::vector<glm::vec3> points;    //add the 1.0 w value in the shader
+  // std::vector<glm::vec3> normals;
+  // std::vector<glm::vec3> colors;
+};
+
+  //****************************************************************************
+  //  Function: CloudModel Constructor
+  //
+  //  Purpose:
+  //    Calls generate_points() and then sets up everything related to the GPU
+  //****************************************************************************
+
+
+CloudModel::CloudModel()
+{
+
+  //initialize all the vectors
+  points.clear();
+
+  //fill those vectors with geometry
+  generate_points();
+
+
+//SETTING UP GPU STUFF
+  //VAO
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+
+  //BUFFER, SEND DATA
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+  int num_bytes_points = sizeof(glm::vec3) * points.size();
+  // int num_bytes_normals = sizeof(glm::vec3) * normals.size();
+  // int num_bytes_colors = sizeof(glm::vec3) * colors.size();
+
+  // glBufferData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals + num_bytes_colors, NULL, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, num_bytes_points, NULL, GL_STATIC_DRAW);
+
+  glBufferSubData(GL_ARRAY_BUFFER, 0, num_bytes_points, &points[0]);
+  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points, num_bytes_normals, &normals[0]);
+  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals, num_bytes_colors, &colors[0]);
+
+  //SHADERS (COMPILE, USE)
+
+  Shader s("resources/shaders/cloud_vert.glsl", "resources/shaders/cloud_frag.glsl");
+
+  shader_program = s.Program;
+
+  glUseProgram(shader_program);
+
+  //VERTEX ATTRIB AND UNIFORM LOCATIONS
+
+  // Initialize the vertex position attribute from the vertex shader
+  vPosition = glGetAttribLocation(shader_program, "vPosition");
+  glEnableVertexAttribArray(vPosition);
+  glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, ((GLvoid*) (0)));
+
+  //UNIFORMS
+  uTime = glGetUniformLocation(shader_program, "t");
+  glUniform1i(uTime, time);
+
+  uProj = glGetUniformLocation(shader_program, "proj");
+  proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
+  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+
+  thresh = 0.56f;
+  uThresh = glGetUniformLocation(shader_program, "thresh");
+  glUniform1f(uThresh, thresh);
+
+
+
+
+
+  //THE TEXTURE
+
+  std::vector<unsigned char> image;
+
+  unsigned width, height;
+  unsigned error = lodepng::decode(image, width, height, "resources/rock_cave.png", LodePNGColorType::LCT_RGBA, 8);
+
+  // for(auto el:image)
+  // {
+  //   cout << el;  //I'm getting an image...
+  // }
+
+  // If there's an error, display it.
+  if(error != 0) {
+    std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
+  }
+
+  glEnable(GL_TEXTURE_2D);
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  glPointSize(GLOBAL_POINTSIZE);
+
+}
+
+  //****************************************************************************
+  //  Function: CloudModel::generate_points()
+  //
+  //  Purpose:
+  //    This function produces all the data for representing this object.
+  //****************************************************************************
+
+void CloudModel::generate_points()
+{
+  //GENERATING GEOMETRY
+
+  glm::vec3 a, b, c, d;
+
+  // float scale = 0.9f;
+  float scale = 1.618f;
+
+  a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
+  b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
+  c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
+  d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
+
+  subd_square(a, b, c, d);
+
+  num_pts = points.size();
+
+  // cout << "num_pts is " << num_pts << endl;
+
+}
+
+void CloudModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
+{
+  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+  {//add points
+    //triangle 1 ABC
+    // points.push_back(a);
+    // points.push_back(b);
+    // points.push_back(c);
+    // //triangle 2 BCD
+    // points.push_back(b);
+    // points.push_back(c);
+    // points.push_back(d);
+
+    //middle
+    points.push_back((a+b+c+d)/4.0f);
+  }
+  else
+  { //recurse
+    glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
+
+    glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
+    glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
+    glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
+    glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
+
+    subd_square(abmidp, b, center, bdmidp);
+    subd_square(a, abmidp, acmidp, center);
+    subd_square(center, bdmidp, cdmidp, d);
+    subd_square(acmidp, center, c, cdmidp);
+  }
+}
+
+
+
+
+  //****************************************************************************
+  //  Function: CloudModel::display()
+  //
+  //  Purpose:
+  //    This function does all the setup for the buffers and uniforms and then
+  //    issues a draw call for the geometry representing this object
+  //****************************************************************************
+
+void CloudModel::display()
+{
+  glBindVertexArray(vao);
+  glUseProgram(shader_program);
+
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  glUniform1i(uTime, time);
+  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+  glUniform1f(uThresh, thresh);
 
   glDrawArrays(GL_POINTS, 0, num_pts);
 

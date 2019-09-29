@@ -16,6 +16,7 @@ int animation_time = 0;
 
 //the model
 GroundModel*       ground;
+WaterModel*        water;
 
 
 //should you draw the models?
@@ -31,6 +32,7 @@ int temp_time = animation_time;
 void init()
 {
   ground = new GroundModel();
+  water = new WaterModel();
 
 
   // GLfloat left = -1.920f;
@@ -50,6 +52,7 @@ void init()
   glm::mat4 proj = glm::ortho(left, right, top, bottom, zNear, zFar);
 
   ground->set_proj(proj);
+  water->set_proj(proj);
 
   glEnable(GL_DEPTH_TEST);
 
@@ -63,7 +66,8 @@ void init()
   // double phi = (1 + std::sqrt(5.0))/2.0;  //golden ratio, used to compute icosahedron
   // glClearColor(1/phi, 1/phi, 1/phi, 1.0); // grey background
 
-  glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+  // glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 }
 
@@ -79,11 +83,12 @@ extern "C" void display()
   {
     animation_time++;
     ground->set_time(animation_time);
-
+    water->set_time(animation_time);
   }
 
-  if(drawground)
-    ground->display();
+  ground->display();
+  water->display();
+
 
   glFlush();
   glutSwapBuffers();
@@ -105,12 +110,6 @@ extern "C" void keyboard(unsigned char key, int x, int y)
     break;
 
 
-  case 'a':
-    ground->toggle_depthcolor();
-    break;
-
-
-
 
   case 'f':
     glutFullScreen();
@@ -127,9 +126,6 @@ extern "C" void keyboard(unsigned char key, int x, int y)
     //stop or start the rotation;
     temp_time = animation_time;
     rotate = !rotate;
-    break;
-  case 'b':
-    ground->toggle_scanlines();
     break;
   }
   glutPostRedisplay();
@@ -179,9 +175,13 @@ int main(int argc, char **argv)
   glutInitContextVersion( 4, 5 );
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 
-  // glutInitWindowSize(800, 800);
+  glutInitWindowSize(1366/2, 768/2);
   glutCreateWindow("GLUT");
-  glutFullScreen();
+  // glutFullScreen();
+
+
+  // glutGameModeString("640x480:16@60");   //not working
+  // glutEnterGameMode();
 
   glewInit();
 
