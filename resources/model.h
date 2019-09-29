@@ -269,6 +269,8 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  glPointSize(15.0);
+
 }
 
   //****************************************************************************
@@ -299,7 +301,7 @@ void GroundModel::generate_points()
 
 void GroundModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  if(glm::distance(a, b) < 0.005)
+  if(glm::distance(a, b) < 0.05)
   {//add points
     //triangle 1 ABC
     points.push_back(a);
@@ -349,5 +351,8 @@ void GroundModel::display()
   // glUniform1i(uScan, scan);
   // glUniform1i(uDcol, dcolor);
 
-  glDrawArrays(GL_TRIANGLES, 0, num_pts);
+  glDrawArrays(GL_POINTS, 0, num_pts);
+
+  cout << num_pts << endl;
+  // glDrawArrays(GL_TRIANGLES, 0, num_pts);
 }
