@@ -269,7 +269,7 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  glPointSize(15.0);
+  glPointSize(7.5);
 
 }
 
@@ -286,10 +286,12 @@ void GroundModel::generate_points()
 
   glm::vec3 a, b, c, d;
 
-  a = glm::vec3(-1.0f, -1.0f, 0.0f);
-  b = glm::vec3(-1.0f, 1.0f, 0.0f);
-  c = glm::vec3(1.0f, -1.0f, 0.0f);
-  d = glm::vec3(1.0f, 1.0f, 0.0f);
+  float scale = 0.9f;
+
+  a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
+  b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
+  c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
+  d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
 
   subd_square(a, b, c, d);
 
@@ -301,16 +303,19 @@ void GroundModel::generate_points()
 
 void GroundModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  if(glm::distance(a, b) < 0.05)
+  if(glm::distance(a, b) < 0.01)
   {//add points
     //triangle 1 ABC
-    points.push_back(a);
-    points.push_back(b);
-    points.push_back(c);
-    //triangle 2 BCD
-    points.push_back(b);
-    points.push_back(c);
-    points.push_back(d);
+    // points.push_back(a);
+    // points.push_back(b);
+    // points.push_back(c);
+    // //triangle 2 BCD
+    // points.push_back(b);
+    // points.push_back(c);
+    // points.push_back(d);
+
+    //middle
+    points.push_back((a+b+c+d)/4.0f);
   }
   else
   { //recurse
@@ -353,6 +358,5 @@ void GroundModel::display()
 
   glDrawArrays(GL_POINTS, 0, num_pts);
 
-  cout << num_pts << endl;
   // glDrawArrays(GL_TRIANGLES, 0, num_pts);
 }

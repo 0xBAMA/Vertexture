@@ -27,13 +27,13 @@ mat4 rotationMatrix(vec3 axis, float angle)
 void main()
 {
 
-  vec4 tref = texture(tex, 0.75 * vPosition.xy + vec2(t/1000.0));
+  vec4 tref = texture(tex, 0.25 * vPosition.xy + vec2(t/1000.0));
 
-  vec4 vPosition_local = vec4(vPosition, 1.0f) + 0.25 * (tref - vec4(0.5));
+  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.1 * (vec4(0,0,tref.z,0) - vec4(0.5));
 
   // gl_Position = proj * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 0.003*t) * vPosition_local;
 
-  gl_Position = proj * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 120) * vPosition_local;
+  gl_Position = proj * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.5) * vPosition_local;
 
 
   // color = vec4(vPosition.x, vPosition.y, vPosition.z, 1.0f);
