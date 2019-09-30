@@ -30,10 +30,10 @@ mat4 rotationMatrix(vec3 axis, float angle)
 void main()
 {
 
-  vec4 tref = texture(tex, 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0));
-  // vec4 tref = texture(tex, 0.25 * vPosition.xy);
+  // vec4 tref = texture(tex, 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0));
+  vec4 tref = texture(tex, 0.25 * vPosition.xy);
 
-  tref.x += 0.01 * sin(vPosition.x + 0.02 * t) + 0.05 * cos(vPosition.y + 0.01 * t);
+  // tref.x += 0.1 * sin(5 * vPosition.x + 0.05 * t) + 0.05 * cos(5 * vPosition.y + 0.07 * t);
 
 
   abort = 0.0f;
@@ -43,7 +43,7 @@ void main()
 
 
   // vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.1 * (vec4(0,0,tref.z,0) - vec4(0.5)); //old
-  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + vec4(0.0f, 0.0f, 0.05f, 0.0f);
+  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f);
 
   // gl_Position = proj * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 0.003*t) * vPosition_local;
 
