@@ -64,12 +64,18 @@ void init()
   // GLfloat zNear = -1.0f;
   // GLfloat zFar = 1.0f;
 
+
+
   GLfloat left = -1.366f;
   GLfloat right = 1.366f;
   GLfloat top = -0.768f;
   GLfloat bottom = 0.768f;
   GLfloat zNear = 1.0f;
   GLfloat zFar = -1.0f;
+
+
+
+
 
   glm::mat4 proj = glm::ortho(left, right, top, bottom, zNear, zFar);
 
@@ -212,7 +218,8 @@ int main(int argc, char **argv)
   glutInitContextVersion( 4, 5 );
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 
-  glutInitWindowSize(1366/2, 768/2);
+  // glutInitWindowSize(1366/2, 768/2);
+  glutInitWindowSize(640,320);
   glutCreateWindow("GLUT");
   // glutFullScreen();
 
@@ -226,8 +233,9 @@ int main(int argc, char **argv)
 
 
 
-  // glutGameModeString("640x480");   //not working, crashes shit
-  // glutEnterGameMode();
+  // glutGameModeString("640x480");   //not working, crashes shit - would be nice to get it working though
+  // glutEnterGameMode();   //the main benefit I'm seeing is that it sets up a framebuffer of that dimension
+                    //but there are other ways to achieve this effect.
 
 
   glutDisplayFunc(display);

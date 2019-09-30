@@ -22,7 +22,7 @@ using std::endl;
 
 #include <random>
 
-#define MIN_POINT_PLACEMENT_THRESHOLD 0.05
+#define MIN_POINT_PLACEMENT_THRESHOLD 0.01
 #define GLOBAL_POINTSIZE 7.5f
 
 //**********************************************
@@ -250,10 +250,6 @@ GroundModel::GroundModel()
   unsigned width, height;
   unsigned error = lodepng::decode(image, width, height, "resources/rock_cave.png", LodePNGColorType::LCT_RGBA, 8);
 
-  // for(auto el:image)
-  // {
-  //   cout << el;  //I'm getting an image...
-  // }
 
   // If there's an error, display it.
   if(error != 0) {
@@ -314,17 +310,17 @@ void GroundModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d
 {
   if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
   {//add points
-    //triangle 1 ABC
-    // points.push_back(a);
-    // points.push_back(b);
-    // points.push_back(c);
-    // //triangle 2 BCD
-    // points.push_back(b);
-    // points.push_back(c);
-    // points.push_back(d);
+    // triangle 1 ABC
+    points.push_back(a);
+    points.push_back(b);
+    points.push_back(c);
+    //triangle 2 BCD
+    points.push_back(b);
+    points.push_back(c);
+    points.push_back(d);
 
     //middle
-    points.push_back((a+b+c+d)/4.0f);
+    // points.push_back((a+b+c+d)/4.0f);
   }
   else
   { //recurse
@@ -365,9 +361,9 @@ void GroundModel::display()
   // glUniform1i(uScan, scan);
   // glUniform1i(uDcol, dcolor);
 
-  glDrawArrays(GL_POINTS, 0, num_pts);
+  // glDrawArrays(GL_POINTS, 0, num_pts);
 
-  // glDrawArrays(GL_TRIANGLES, 0, num_pts);
+  glDrawArrays(GL_TRIANGLES, 0, num_pts);
 }
 
 
@@ -613,17 +609,17 @@ void WaterModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
   // if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
   if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD * 5)
   {//add points
-    //triangle 1 ABC
-    // points.push_back(a);
-    // points.push_back(b);
-    // points.push_back(c);
-    // //triangle 2 BCD
-    // points.push_back(b);
-    // points.push_back(c);
-    // points.push_back(d);
+    // triangle 1 ABC
+    points.push_back(a);
+    points.push_back(b);
+    points.push_back(c);
+    //triangle 2 BCD
+    points.push_back(b);
+    points.push_back(c);
+    points.push_back(d);
 
     //middle
-    points.push_back((a+b+c+d)/4.0f);
+    // points.push_back((a+b+c+d)/4.0f);
   }
   else
   { //recurse
@@ -663,9 +659,9 @@ void WaterModel::display()
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
   glUniform1f(uThresh, thresh);
 
-  glDrawArrays(GL_POINTS, 0, num_pts);
+  // glDrawArrays(GL_POINTS, 0, num_pts);
 
-  // glDrawArrays(GL_TRIANGLES, 0, num_pts);
+  glDrawArrays(GL_TRIANGLES, 0, num_pts);
 }
 
 
@@ -714,7 +710,7 @@ void WaterModel::display()
 //******************************************************************************
 
 
-class CloudModel
+class CloudModel    //clouds will be a bunch of triangles, a la v07, and reference a 3d texture loaded from perlin noise
 {
 public:
 
