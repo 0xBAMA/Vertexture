@@ -1207,14 +1207,14 @@ CloudModel::CloudModel()
     {
       for(int z = 0; z < 256; z++)
       {
-        sample = 255 * p.noise(0.03 * x, 0.03 * y, 0.03 * z);
+        sample = 255 * p.noise(0.4 * x, 0.4 * y, 0.4 * z);
         // cout << sample;
         noise_data.push_back(sample);
-        sample = 255 * p.noise(0.03 * x, 0.03 * y, 0.03 * z);
+        sample = 255 * p.noise(0.2 * x, 0.2 * y, 0.2 * z);
 
         noise_data.push_back(sample);
 
-        sample = 255 * p.noise(0.03 * x, 0.03 * y, 0.03 * z);
+        sample = 255 * p.noise(0.1 * x, 0.1 * y, 0.1 * z);
         noise_data.push_back(sample);
 
         sample = 100 * p.noise(0.05 * x, 0.05 * y, 0.05 * z);
@@ -1263,7 +1263,7 @@ void CloudModel::generate_points()
     points.push_back(b);
     points.push_back(c);
     //second triangle
-    points.push_back(b); 
+    points.push_back(b);
     points.push_back(c);
     points.push_back(d);
   }

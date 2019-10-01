@@ -24,6 +24,7 @@ SkirtModel*        skirts;
 
 //should you draw the models?
 bool drawground = true;
+bool drawclouds = false;
 
 
 bool rotate = true;
@@ -136,9 +137,15 @@ extern "C" void display()
 
   }
 
-  ground->display();
+
+  if(drawground)
+    ground->display();
+
   water->display();
-  // clouds->display(); //they came out looking shitty
+
+  if(drawclouds)
+    clouds->display(); //they came out looking maybe a little shitty for the performance hit it creates
+
   skirts->display();
 
 
@@ -175,6 +182,13 @@ extern "C" void keyboard(unsigned char key, int x, int y)
     //toggle drawing of ground
     drawground = !drawground;
     break;
+
+  case 'c':
+    //toggle drawing of clouds
+    drawclouds = !drawclouds;
+    break;
+
+
   case 'v':
     //stop or start the rotation;
     temp_time = animation_time;
