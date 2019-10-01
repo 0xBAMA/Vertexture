@@ -18,6 +18,7 @@ int animation_time = 0;
 //the model
 GroundModel*       ground;
 WaterModel*        water;
+CloudModel*        clouds;
 SkirtModel*        skirts;
 
 
@@ -57,6 +58,7 @@ void init()
 {
   ground = new GroundModel();
   water = new WaterModel();
+  clouds = new CloudModel();
   skirts = new SkirtModel();
 
 
@@ -84,6 +86,7 @@ void init()
 
   ground->set_proj(proj);
   water->set_proj(proj);
+  clouds->set_proj(proj);
   skirts->set_proj(proj);
 
   glEnable(GL_DEPTH_TEST);
@@ -128,12 +131,16 @@ extern "C" void display()
     animation_time++;
     ground->set_time(animation_time);
     water->set_time(animation_time);
+    clouds->set_time(animation_time);
     skirts->set_time(animation_time);
+
   }
 
   ground->display();
   water->display();
+  // clouds->display();
   skirts->display();
+
 
 
   glFlush();
@@ -225,7 +232,7 @@ int main(int argc, char **argv)
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 
   // glutInitWindowSize(1366/2, 768/2);
-  glutInitWindowSize(640,320);
+  glutInitWindowSize(720,480);
   glutCreateWindow("GLUT");
   // glutFullScreen();
 

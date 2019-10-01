@@ -7,7 +7,7 @@ void
 main()
 {
     gl_FragColor = color;
-  
+
     //these are used to draw something along the lines of scanlines (per-pixel and dithering-style effects)
     int fcxmod2 = int(gl_FragCoord.x) % 2;
     int fcymod3 = int(gl_FragCoord.y) % 3;

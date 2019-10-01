@@ -3,12 +3,13 @@
 in  vec3 vPosition;
 in  vec3 vNormal;
 in  vec3 vColor;
-out vec4 color;
+out vec3 vpos;
 
 uniform int t;
 uniform mat4 proj;
 
 uniform float thresh;
+
 
 //thanks to Neil Mendoza via http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
 mat4 rotationMatrix(vec3 axis, float angle)
@@ -31,6 +32,11 @@ void main()
 
   gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
 
-  color = vec4(0.2, 0.6, 0.55, 5*0.1618);
+  vpos = 0.2 * vPosition;
+
+  // if(sample.x < 0.5)
+  //   color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+  // else
+  //   color = vec4(0.2, 0.2, 0.2, 7.0/255.0);
 
 }

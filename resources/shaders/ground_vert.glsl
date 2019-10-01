@@ -8,7 +8,7 @@ out vec4 color;
 uniform int t;
 uniform mat4 proj;
 
-uniform sampler2D tex;
+uniform sampler2D rock_height_tex;
 
 //thanks to Neil Mendoza via http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
 mat4 rotationMatrix(vec3 axis, float angle)
@@ -28,7 +28,7 @@ void main()
 {
 
   // vec4 tref = texture(tex, 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0));
-  vec4 tref = texture(tex, 0.25 * vPosition.xy);
+  vec4 tref = texture(rock_height_tex, 0.25 * vPosition.xy);
 
   vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.2 * vec4(0,0,tref.z - 0.5,0);
 
