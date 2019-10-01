@@ -5,12 +5,16 @@ in  vec3 vNormal;
 in  vec3 vColor;
 out vec4 color;
 
+out vec4 vpos;
+
+// out vec2 texcoord;
+
 uniform int t;
 uniform mat4 proj;
 
 uniform float thresh;
-
 uniform sampler2D tex;
+
 
 //thanks to Neil Mendoza via http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
 mat4 rotationMatrix(vec3 axis, float angle)
@@ -29,10 +33,12 @@ mat4 rotationMatrix(vec3 axis, float angle)
 void main()
 {
 
+
   vec4 vPosition_local = vec4(0.5*vPosition, 1.0f);
 
-  gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
+  color = texture(tex, 0.25 * vPosition.xy);
+  vpos = vPosition_local;
 
-  color = vec4(0.2, 0.6, 0.55, 5*0.1618);
+  gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
 
 }

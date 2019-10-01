@@ -11,12 +11,14 @@
 //******************************************************************************
 
 #include "resources/model.h"
+#include <stdio.h>
 
 int animation_time = 0;
 
 //the model
 GroundModel*       ground;
 WaterModel*        water;
+SkirtModel*        skirts;
 
 
 //should you draw the models?
@@ -55,6 +57,7 @@ void init()
 {
   ground = new GroundModel();
   water = new WaterModel();
+  skirts = new SkirtModel();
 
 
   // GLfloat left = -1.920f;
@@ -81,6 +84,7 @@ void init()
 
   ground->set_proj(proj);
   water->set_proj(proj);
+  skirts->set_proj(proj);
 
   glEnable(GL_DEPTH_TEST);
 
@@ -124,10 +128,12 @@ extern "C" void display()
     animation_time++;
     ground->set_time(animation_time);
     water->set_time(animation_time);
+    skirts->set_time(animation_time);
   }
 
   ground->display();
   water->display();
+  skirts->display();
 
 
   glFlush();
@@ -241,6 +247,9 @@ int main(int argc, char **argv)
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
   // glutReshapeFunc(reshape);
+
+  GLint textureCount;
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureCount); printf("%d texture units available.\n", textureCount);
 
 
 
