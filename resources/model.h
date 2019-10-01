@@ -449,7 +449,11 @@ public:
 private:
   GLuint vao;
   GLuint buffer;
-  GLuint tex;
+
+  //the three textures associated with the water's surface - we don't need the ground anymore, just using depth testing there now
+  GLuint displacement_tex, displacement_tex_sampler;
+  GLuint normal_tex, normal_tex_sampler;
+  GLuint color_tex, color_tex_sampler;
 
   GLuint shader_program;
 
@@ -550,41 +554,40 @@ WaterModel::WaterModel()
 
 
 
-  //THE TEXTURE
-
-  std::vector<unsigned char> image;
-
-  unsigned width, height;
-  unsigned error = lodepng::decode(image, width, height, "resources/textures/rock_height.png", LodePNGColorType::LCT_RGBA, 8);
-
-  // for(auto el:image)
-  // {
-  //   cout << el;  //I'm getting an image...
+  // //THE TEXTURE
+  //
+  // std::vector<unsigned char> image;
+  //
+  // unsigned width, height;
+  // unsigned error = lodepng::decode(image, width, height, "resources/textures/rock_height.png", LodePNGColorType::LCT_RGBA, 8);
+  //
+  // // for(auto el:image)
+  // // {
+  // //   cout << el;  //I'm getting an image...
+  // // }
+  //
+  // // If there's an error, display it.
+  // if(error != 0) {
+  //   std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
   // }
+  //
+  // glEnable(GL_TEXTURE_2D);
+  // glGenTextures(1, &tex);
+  // glBindTexture(GL_TEXTURE_2D, tex);
+  //
+  // // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  //
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  //
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  //
+  // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+  //
+  // glGenerateMipmap(GL_TEXTURE_2D);
 
-  // If there's an error, display it.
-  if(error != 0) {
-    std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
-  }
-
-  glEnable(GL_TEXTURE_2D);
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
-
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
-
-  glGenerateMipmap(GL_TEXTURE_2D);
-
-  glPointSize(GLOBAL_POINTSIZE);
 
 }
 
