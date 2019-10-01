@@ -138,7 +138,7 @@ extern "C" void display()
 
   ground->display();
   water->display();
-  // clouds->display();
+  // clouds->display(); //they came out looking shitty
   skirts->display();
 
 
