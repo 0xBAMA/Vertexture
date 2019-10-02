@@ -10,6 +10,8 @@ out vec4 vpos;
 // out vec2 texcoord;
 
 uniform int t;
+uniform int scroll;
+uniform float scale;
 uniform mat4 proj;
 
 uniform float thresh;
@@ -36,7 +38,26 @@ void main()
 
   vec4 vPosition_local = vec4(0.5*vPosition, 1.0f);
 
-  color = texture(tex, 0.25 * vPosition.xy);
+  // color = vec4(0.5);
+
+  // float scale = 1.0;
+
+  switch(scroll)
+  {
+    case 0:
+      color = texture(tex, scale * (0.25 * vPosition.xy));
+      break;
+    case 1:
+      color = texture(tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      break;
+    case 2:
+      color = texture(tex, scale * (0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      break;
+    default:
+      color = vec4(1.0, 0.0, 0.0, 1.0);
+      break;
+  }
+
   vpos = vPosition_local;
 
   gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;

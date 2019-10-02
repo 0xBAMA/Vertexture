@@ -30,6 +30,8 @@ bool drawclouds = false;
 bool rotate = true;
 int temp_time = animation_time;
 
+int scroll = 0; // 0 - no scrolling, 1 - slow, 2 - faster
+
 
 
 
@@ -89,6 +91,9 @@ void init()
   water->set_proj(proj);
   clouds->set_proj(proj);
   skirts->set_proj(proj);
+
+  ground->set_scroll(scroll);
+  skirts->set_scroll(scroll);
 
   glEnable(GL_DEPTH_TEST);
 
@@ -175,12 +180,38 @@ extern "C" void keyboard(unsigned char key, int x, int y)
     glutFullScreen();
     break;
 
+  case 'a':
+    ground->scale_up();
+    skirts->scale_up();
+    break;
+  case 's':
+    ground->scale_down();
+    skirts->scale_down();
+    break;
+
 
 
 
   case 'z':
     //toggle drawing of ground
     drawground = !drawground;
+    break;
+
+  case 'x': //cycle speeds
+    switch(scroll)
+    {
+      case 0:
+        scroll = 1;
+        break;
+      case 1:
+        scroll = 2;
+        break;
+      case 2:
+        scroll = 0;
+        break;
+    }
+    ground->set_scroll(scroll);
+    skirts->set_scroll(scroll);
     break;
 
   case 'c':

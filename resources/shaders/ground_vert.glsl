@@ -6,6 +6,8 @@ in  vec3 vColor;
 out vec4 color;
 
 uniform int t;
+uniform int scroll;
+uniform float scale;
 uniform mat4 proj;
 
 uniform sampler2D rock_height_tex;
@@ -27,8 +29,26 @@ mat4 rotationMatrix(vec3 axis, float angle)
 void main()
 {
 
-  // vec4 tref = texture(tex, 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0));
-  vec4 tref = texture(rock_height_tex, 0.25 * vPosition.xy);
+
+  vec4 tref;
+
+  // float scale = 1.0;
+
+  switch(scroll)
+  {
+    case 0:
+      tref = texture(rock_height_tex, scale * (0.25 * vPosition.xy));
+      break;
+    case 1:
+      tref = texture(rock_height_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      break;
+    case 2:
+      tref = texture(rock_height_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      break;
+    default:
+      tref = vec4(1.0, 0.0, 0.0, 1.0);
+      break;
+  }
 
   vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.2 * vec4(0,0,tref.z - 0.5,0);
 

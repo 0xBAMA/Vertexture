@@ -22,10 +22,44 @@ using std::endl;
 
 #include <random>
 
+
+
+
+
+
 #define MIN_POINT_PLACEMENT_THRESHOLD 0.01
 #define GLOBAL_POINTSIZE 7.5f
 
-#define GROUND_TEXTURE_PATH "resources/textures/rock_height.png"
+
+
+
+
+
+
+
+
+
+#define GROUND_NORMAL_PATH "resources/textures/normal/rock_normal.png"
+
+#define GROUND_TEXTURE_PATH "resources/textures/height/rock_height.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/penny.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/Grts_RiverValley.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/hmpoland2048.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/nasa_rover_practice.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/sphere.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/bears.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/bears2.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/united-kingdom-2048.png"
+
+
+#define WATER_HEIGHT_TEXTURE "resources/textures/height/water_height.png"
+#define WATER_NORMAL_TEXTURE "resources/textures/normal/water_normal.png"
+#define WATER_COLOR_TEXTURE "resources/textures/water_color.png"
+
+
+
+
+
 
 //**********************************************
 
@@ -145,6 +179,9 @@ public:
   void display();
 
   void set_time(int tin)        {time = tin;}
+  void set_scroll(int sin)      {scroll = sin;}
+  void scale_up()               {scale *= 1.618f;}
+  void scale_down()             {scale /= 1.618f;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
 
 
@@ -167,10 +204,16 @@ private:
 //UNIFORM LOCATIONS
   GLuint uTime;   //animation time
   GLuint uProj;   //projection matrix
+  GLuint uScroll;
+  GLuint uScale;
+
 
 
 //VALUES OF THOSE UNIFORMS
   int time;
+  int scroll;
+  float scale;
+
   glm::mat4 proj;
 
   void generate_points();
@@ -242,11 +285,16 @@ GroundModel::GroundModel()
   uTime = glGetUniformLocation(shader_program, "t");
   glUniform1i(uTime, time);
 
+  uScroll = glGetUniformLocation(shader_program, "scroll");
+  glUniform1i(uScroll, scroll);
+
   uProj = glGetUniformLocation(shader_program, "proj");
   proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-
+  scale = 1.0;
+  uScale = glGetUniformLocation(shader_program, "scale");
+  glUniform1f(uScale, scale);
 
 
 
@@ -364,6 +412,10 @@ void GroundModel::display()
   glBindTexture(GL_TEXTURE_2D, tex);
 
   glUniform1i(uTime, time);
+  glUniform1i(uScroll, scroll);
+  glUniform1f(uScale, scale);
+
+
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
   // glUniform1i(uScan, scan);
   // glUniform1i(uDcol, dcolor);
@@ -749,7 +801,11 @@ public:
   void display();
 
   void set_time(int tin)        {time = tin;}
+  void set_scroll(int sin)      {scroll = sin;}
+  void scale_up()               {scale *= 1.618f;}
+  void scale_down()             {scale /= 1.618f;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
+
 
   void increase_thresh()        {thresh += 0.01; cout << thresh << endl;}
   void decrease_thresh()        {thresh -= 0.01; cout << thresh << endl;}
@@ -774,11 +830,13 @@ private:
   GLuint uTime;   //animation time
   GLuint uProj;   //projection matrix
   GLuint uThresh;   //cutoff for water
+  GLuint uScale;
+  GLuint uScroll;
 
 
 //VALUES OF THOSE UNIFORMS
-  int time;
-  float thresh;
+  int time, scroll;
+  float thresh, scale;
   glm::mat4 proj;
 
   void generate_points();
@@ -851,10 +909,17 @@ SkirtModel::SkirtModel()
   proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
+  uScroll = glGetUniformLocation(shader_program, "scroll");
+  glUniform1i(uScroll, scroll);
+
 
   thresh = 0.56f;
   uThresh = glGetUniformLocation(shader_program, "thresh");
   glUniform1f(uThresh, thresh);
+
+  scale = 1.0;
+  uScale = glGetUniformLocation(shader_program, "scale");
+  glUniform1f(uScale, scale);
 
 
 
@@ -1001,6 +1066,9 @@ void SkirtModel::display()
   glBindTexture(GL_TEXTURE_2D, tex);
 
   glUniform1i(uTime, time);
+  glUniform1f(uScale, scale);
+  glUniform1i(uScroll, scroll);
+
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
   glUniform1f(uThresh, thresh);
 
@@ -1212,18 +1280,30 @@ CloudModel::CloudModel()
     {
       for(int z = 0; z < 256; z++)
       {
-        sample = 255 * p.noise(0.4 * x, 0.4 * y, 0.4 * z);
-        // cout << sample;
-        noise_data.push_back(sample);
-        sample = 255 * p.noise(0.2 * x, 0.2 * y, 0.2 * z);
 
-        noise_data.push_back(sample);
 
-        sample = 255 * p.noise(0.1 * x, 0.1 * y, 0.1 * z);
-        noise_data.push_back(sample);
+        // if((x % 15 < 3) || (y % 20 < 3) || (z % 30 < 4))
+        // {
+        //   noise_data.push_back(0);
+        //   noise_data.push_back(0);
+        //   noise_data.push_back(0);
+        //   noise_data.push_back(255);
+        // }
+        // else
+        // {
+          sample = 255 * p.noise(0.4 * x, 0.4 * y, 0.4 * z);
+          // cout << sample;
+          noise_data.push_back(sample);
+          sample = 255 * p.noise(0.2 * x, 0.2 * y, 0.2 * z);
 
-        sample = 100 * p.noise(0.05 * x, 0.05 * y, 0.05 * z);
-        noise_data.push_back(sample);
+          noise_data.push_back(sample);
+
+          sample = 255 * p.noise(0.1 * x, 0.1 * y, 0.1 * z);
+          noise_data.push_back(sample);
+
+          sample = 100 * p.noise(0.05 * x, 0.05 * y, 0.05 * z);
+          noise_data.push_back(sample);
+        // }
       }
     }
   }
