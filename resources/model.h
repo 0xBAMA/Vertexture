@@ -43,6 +43,10 @@ using std::endl;
 
 #define GROUND_TEXTURE_PATH "resources/textures/height/rock_height.png"
 // #define GROUND_TEXTURE_PATH "resources/textures/height/penny.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/fort_ross_lidar.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/MtRuapehuandNgauruhoe.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/pugetSound.png"
+// #define GROUND_TEXTURE_PATH "resources/textures/height/volcano.png"
 // #define GROUND_TEXTURE_PATH "resources/textures/height/Grts_RiverValley.png"
 // #define GROUND_TEXTURE_PATH "resources/textures/height/hmpoland2048.png"
 // #define GROUND_TEXTURE_PATH "resources/textures/height/nasa_rover_practice.png"
