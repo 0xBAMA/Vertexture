@@ -17,6 +17,7 @@ int animation_time = 0;
 
 //the model
 GroundModel*       ground;
+DudesAndTreesModel* datmodel;
 WaterModel*        water;
 CloudModel*        clouds;
 SkirtModel*        skirts;
@@ -60,6 +61,7 @@ MessageCallback( GLenum source,
 void init()
 {
   ground = new GroundModel();
+  datmodel = new DudesAndTreesModel();
   water = new WaterModel();
   clouds = new CloudModel();
   skirts = new SkirtModel();
@@ -89,10 +91,12 @@ void init()
 
   ground->set_proj(proj);
   water->set_proj(proj);
+  datmodel->set_proj(proj);
   clouds->set_proj(proj);
   skirts->set_proj(proj);
 
   ground->set_scroll(scroll);
+  datmodel->set_scroll(scroll);
   skirts->set_scroll(scroll);
 
   glEnable(GL_DEPTH_TEST);
@@ -136,21 +140,31 @@ extern "C" void display()
   {
     animation_time++;
     ground->set_time(animation_time);
+    datmodel->set_time(animation_time);
     water->set_time(animation_time);
     clouds->set_time(animation_time);
     skirts->set_time(animation_time);
-
   }
 
 
+
+//DRAW THE GROUND
   if(drawground)
     ground->display();
 
+//DRAW THE DUDES AND TREES
+  // datmodel->display();
+
+
+//DRAW THE WATER
   water->display();
 
-  if(drawclouds)
-    clouds->display(); //they came out looking maybe a little shitty for the performance hit it creates
 
+//DRAW THE CLOUDS
+  if(drawclouds)
+    clouds->display();
+
+//DRAW THE SKIRTS
   skirts->display();
 
 

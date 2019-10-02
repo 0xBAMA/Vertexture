@@ -38,8 +38,7 @@ using std::endl;
 
 
 
-
-#define GROUND_NORMAL_PATH "resources/textures/normal/rock_normal.png"
+#define GROUND_NORMAL_PATH "resources/textures/normals/rock_norm.png"
 
 #define GROUND_TEXTURE_PATH "resources/textures/height/rock_height.png"
 // #define GROUND_TEXTURE_PATH "resources/textures/height/penny.png"
@@ -631,7 +630,12 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   // If there's an error, display it.
   if(error != 0) {
-    std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
+    std::cout << "error with lodepng ground height texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
+  }
+
+
+  if(error2 != 0) {
+    std::cout << "error with lodepng ground normal texture loading " << error << ": " << lodepng_error_text(error2) << std::endl;
   }
 
   glEnable(GL_TEXTURE_2D);
@@ -666,8 +670,11 @@ DudesAndTreesModel::DudesAndTreesModel()
 
 
 
-  uHeightSampler = glGetUniformLocation(shader_program, )
-  uNormalSampler = glGetUniformLocation(shader_program, )
+  uHeightSampler = glGetUniformLocation(shader_program, "rock_height_tex");
+  uNormalSampler = glGetUniformLocation(shader_program, "rock_normal_tex");
+
+  glUniform1i(uHeightSampler,   0);   //height goes in texture unit 0
+  glUniform1i(uNormalSampler,   1);   //normal goes in texture unit 1
 
 
 
@@ -681,15 +688,70 @@ DudesAndTreesModel::DudesAndTreesModel()
   //  Purpose:
   //    This function produces all the data for representing this object.
   //****************************************************************************
+//
+// void DudesAndTreesModel::generate_points()
+// {
+//
+//   //make a model for good guy
+//   //make a model for bad guy
+//   //make a model for box
+//   //make a model for tree - simple l system?
+//
+// }
+
 
 void DudesAndTreesModel::generate_points()
 {
+  //GENERATING GEOMETRY
 
-  //make a model for good guy
-  //make a model for bad guy
-  //make a model for box
-  //make a model for tree - simple l system?
+  glm::vec3 a, b, c, d;
 
+  float scale = 1.618f;
+  // float scale = 0.9f;
+
+  a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
+  b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
+  c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
+  d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
+
+  subd_square(a, b, c, d);
+
+  num_pts = points.size();
+
+  // cout << "num_pts is " << num_pts << endl;
+
+}
+
+void DudesAndTreesModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
+{
+  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+  {//add points
+    // triangle 1 ABC
+    points.push_back(a);
+    points.push_back(b);
+    points.push_back(c);
+    //triangle 2 BCD
+    points.push_back(b);
+    points.push_back(c);
+    points.push_back(d);
+
+    //middle
+    // points.push_back((a+b+c+d)/4.0f);
+  }
+  else
+  { //recurse
+    glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
+
+    glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
+    glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
+    glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
+    glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
+
+    subd_square(abmidp, b, center, bdmidp);
+    subd_square(a, abmidp, acmidp, center);
+    subd_square(center, bdmidp, cdmidp, d);
+    subd_square(acmidp, center, c, cdmidp);
+  }
 }
 
 
@@ -706,7 +768,13 @@ void DudesAndTreesModel::display()
   glBindVertexArray(vao);
   glUseProgram(shader_program);
 
-  glBindTexture(GL_TEXTURE_2D, tex);
+  // glBindTexture(GL_TEXTURE_2D, tex);
+
+  glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+  glBindTexture(GL_TEXTURE_2D, ground_tex);
+
+  glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+  glBindTexture(GL_TEXTURE_2D, ground_norm_tex);
 
 
   glUniform1i(uTime, time);
