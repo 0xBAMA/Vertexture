@@ -25,6 +25,8 @@ using std::endl;
 #define MIN_POINT_PLACEMENT_THRESHOLD 0.01
 #define GLOBAL_POINTSIZE 7.5f
 
+#define GROUND_TEXTURE_PATH "resources/textures/rock_height.png"
+
 //**********************************************
 
 // GLEW
@@ -253,7 +255,7 @@ GroundModel::GroundModel()
   std::vector<unsigned char> image;
 
   unsigned width, height;
-  unsigned error = lodepng::decode(image, width, height, "resources/textures/rock_height.png", LodePNGColorType::LCT_RGBA, 8);
+  unsigned error = lodepng::decode(image, width, height, GROUND_TEXTURE_PATH, LodePNGColorType::LCT_RGBA, 8);
 
 
   // If there's an error, display it.
@@ -669,7 +671,7 @@ void WaterModel::display()
   glBindVertexArray(vao);
   glUseProgram(shader_program);
 
-  glBindTexture(GL_TEXTURE_2D, tex);
+  // glBindTexture(GL_TEXTURE_2D, tex);
 
   glUniform1i(uTime, time);
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
@@ -863,7 +865,7 @@ SkirtModel::SkirtModel()
   std::vector<unsigned char> image;
 
   unsigned width, height;
-  unsigned error = lodepng::decode(image, width, height, "resources/textures/rock_height.png", LodePNGColorType::LCT_RGBA, 8);
+  unsigned error = lodepng::decode(image, width, height, GROUND_TEXTURE_PATH, LodePNGColorType::LCT_RGBA, 8);
 
   // for(auto el:image)
   // {
