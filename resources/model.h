@@ -197,6 +197,7 @@ private:
   GLuint tex;
 
   GLuint shader_program;
+  GLuint selection_shader_program;
 
   int num_pts; //how many points?
 
@@ -273,8 +274,10 @@ GroundModel::GroundModel()
 
   cout << "compiling ground shaders" << endl;
   Shader s("resources/shaders/ground_vert.glsl", "resources/shaders/ground_frag.glsl");
+  Shader s2("resources/shaders/ground_sel_vert.glsl", "resources/shaders/ground_sel_frag.glsl");
 
   shader_program = s.Program;
+  selection_shader_program = s2.Program;
 
   glUseProgram(shader_program);
 
@@ -431,6 +434,294 @@ void GroundModel::display()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//******************************************************************************
+//  Class: DudesAndTreesModel
+//
+//  Purpose:  To represent the ground on the GPU, and everything that goes along
+//        with displaying this ball to the user.
+//
+//  Functions:
+//
+//    Constructor:
+//        Takes no arguments, calls generate_points() to create geometry. Then
+//        buffers all this data to the GPU memory.
+//
+//    Setters:
+//        Used to update the values of the uniform variables.
+//
+//    Generate Points:
+//        Creates a square, subdivides the faces several times, and creates
+//        triangles to span the shape. This data is used to populate the
+//        vectors containing point data.
+//
+//    Display:
+//        Makes sure the correct shader is being used, that the correct buffers
+//        are bound, that the vertex attributes are set up, and that all the
+//        latest values of the uniform variables are sent to the GPU.
+//******************************************************************************
+
+
+class DudesAndTreesModel
+{
+public:
+
+  DudesAndTreesModel();
+
+  void display();
+
+  void set_time(int tin)        {time = tin;}
+  void set_scroll(int sin)      {scroll = sin;}
+  void scale_up()               {scale *= 1.618f;}
+  void scale_down()             {scale /= 1.618f;}
+  void set_proj(glm::mat4 pin)  {proj = pin;}
+
+
+
+
+private:
+  GLuint vao;
+  GLuint buffer;
+  GLuint ground_tex;
+  GLuint ground_norm_tex;
+
+  GLuint shader_program;
+
+  int num_pts; //how many points?
+
+//VERTEX ATTRIB LOCATIONS
+  GLuint vPosition;
+  // GLuint vNormal;
+  // GLuint vColor;
+
+//UNIFORM LOCATIONS
+  GLuint uTime;   //animation time
+  GLuint uProj;   //projection matrix
+  GLuint uScroll;
+  GLuint uScale;
+
+  GLuint uHeightSampler;  //textures
+  GLuint uNormalSampler;
+
+
+
+//VALUES OF THOSE UNIFORMS
+  int time;
+  int scroll;
+  float scale;
+
+  glm::mat4 proj;
+
+  void generate_points();
+  void subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d);
+
+  std::vector<glm::vec3> points;    //add the 1.0 w value in the shader
+  // std::vector<glm::vec3> normals;
+  // std::vector<glm::vec3> colors;
+};
+
+  //****************************************************************************
+  //  Function: DudesAndTreesModel Constructor
+  //
+  //  Purpose:
+  //    Calls generate_points() and then sets up everything related to the GPU
+  //****************************************************************************
+
+
+DudesAndTreesModel::DudesAndTreesModel()
+{
+
+  //initialize all the vectors
+  points.clear();
+
+  //fill those vectors with geometry
+  generate_points();
+
+
+//SETTING UP GPU STUFF
+  //VAO
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+
+  //BUFFER, SEND DATA
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+  int num_bytes_points = sizeof(glm::vec3) * points.size();
+  // int num_bytes_normals = sizeof(glm::vec3) * normals.size();
+  // int num_bytes_colors = sizeof(glm::vec3) * colors.size();
+
+  // glBufferData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals + num_bytes_colors, NULL, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, num_bytes_points, NULL, GL_STATIC_DRAW);
+
+  glBufferSubData(GL_ARRAY_BUFFER, 0, num_bytes_points, &points[0]);
+  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points, num_bytes_normals, &normals[0]);
+  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals, num_bytes_colors, &colors[0]);
+
+  //SHADERS (COMPILE, USE)
+
+  cout << "compiling dudesandtrees shaders" << endl;
+  Shader s("resources/shaders/dudesandtrees_vert.glsl", "resources/shaders/dudesandtrees_frag.glsl");
+
+  shader_program = s.Program;
+
+  glUseProgram(shader_program);
+
+  //VERTEX ATTRIB AND UNIFORM LOCATIONS
+
+  // Initialize the vertex position attribute from the vertex shader
+  vPosition = glGetAttribLocation(shader_program, "vPosition");
+  glEnableVertexAttribArray(vPosition);
+  glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, ((GLvoid*) (0)));
+
+  //UNIFORMS
+  uTime = glGetUniformLocation(shader_program, "t");
+  glUniform1i(uTime, time);
+
+  uScroll = glGetUniformLocation(shader_program, "scroll");
+  glUniform1i(uScroll, scroll);
+
+  uProj = glGetUniformLocation(shader_program, "proj");
+  proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
+  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+  scale = 1.0;
+  uScale = glGetUniformLocation(shader_program, "scale");
+  glUniform1f(uScale, scale);
+
+
+
+
+
+
+
+  //THE TEXTURE
+
+  std::vector<unsigned char> image;
+  std::vector<unsigned char> image2;
+
+  unsigned width, height;
+  unsigned error = lodepng::decode(image, width, height, GROUND_TEXTURE_PATH, LodePNGColorType::LCT_RGBA, 8);
+
+  unsigned width2, height2;
+  unsigned error2 = lodepng::decode(image2, width2, height2, GROUND_NORMAL_PATH, LodePNGColorType::LCT_RGBA, 8);
+
+
+  // If there's an error, display it.
+  if(error != 0) {
+    std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
+  }
+
+  glEnable(GL_TEXTURE_2D);
+  glGenTextures(1, &ground_tex);
+
+  glBindTexture(GL_TEXTURE_2D, ground_tex);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+
+
+
+  glGenTextures(1, &ground_norm_tex);
+
+  glBindTexture(GL_TEXTURE_2D, ground_norm_tex);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+
+
+  uHeightSampler = glGetUniformLocation(shader_program, )
+  uNormalSampler = glGetUniformLocation(shader_program, )
+
+
+
+  // glPointSize(GLOBAL_POINTSIZE);
+
+}
+
+  //****************************************************************************
+  //  Function: DudesAndTreesModel::generate_points()
+  //
+  //  Purpose:
+  //    This function produces all the data for representing this object.
+  //****************************************************************************
+
+void DudesAndTreesModel::generate_points()
+{
+
+  //make a model for good guy
+  //make a model for bad guy
+  //make a model for box
+  //make a model for tree - simple l system?
+
+}
+
+
+  //****************************************************************************
+  //  Function: DudesAndTreesModel::display()
+  //
+  //  Purpose:
+  //    This function does all the setup for the buffers and uniforms and then
+  //    issues a draw call for the geometry representing this object
+  //****************************************************************************
+
+void DudesAndTreesModel::display()
+{
+  glBindVertexArray(vao);
+  glUseProgram(shader_program);
+
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+
+  glUniform1i(uTime, time);
+  glUniform1i(uScroll, scroll);
+  glUniform1f(uScale, scale);
+
+
+  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+  // glUniform1i(uScan, scan);
+  // glUniform1i(uDcol, dcolor);
+
+  // glDrawArrays(GL_POINTS, 0, num_pts);
+
+  glDrawArrays(GL_TRIANGLES, 0, num_pts);
+}
 
 
 
@@ -680,7 +971,6 @@ void WaterModel::generate_points()
 
 void WaterModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  // if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
   if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
   {//add points
     // triangle 1 ABC
@@ -1020,8 +1310,7 @@ void SkirtModel::generate_points()
 
 void SkirtModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  // if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
-  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+  if(glm::distance(a, c) < MIN_POINT_PLACEMENT_THRESHOLD)
   {//add points
     // triangle 1 ABC
     points.push_back(a);
