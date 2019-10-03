@@ -14,7 +14,7 @@ main()
 
     float height_offset = 0.2 * (color.z - 0.5);
 
-    gl_FragColor  =  vec4(0.2, 0.6, 0.6, 0.35);  //the water's color
+    gl_FragColor  =  vec4(0.2, 0.6, 0.6, 0.5);  //the water's color
 
     if(vpos.z < 0.0 + height_offset)
     {
@@ -35,7 +35,7 @@ main()
 
     if((vpos.z > 0.0 + height_offset) && vpos.z > 0.0) discard;   //throw away everything above the water
 
-    if(gl_FragColor == vec4(0.2, 0.6, 0.6, 0.35))
+    if(gl_FragColor == vec4(0.2, 0.6, 0.6, 0.5))
     {
       //fcymod3 is used to draw something along the lines of scanlines
       int fcxmod2 = int(gl_FragCoord.x) % 2;
