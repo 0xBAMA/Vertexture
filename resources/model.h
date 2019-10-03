@@ -854,16 +854,21 @@ DudesAndTreesModel::DudesAndTreesModel()
 void DudesAndTreesModel::generate_points()
 {
 
+      // for(int x = 5; x >= -5; x--)
+      // {
+      //   for(int y = -5; y<= 5; y++)
+      //   {
+      //     points.push_back(glm::vec3(0.05*x,0.05*y,0.1f));
+      //     cout << "x " << x << " y " << y << endl;
+      //   }
+      // }
+
+
 
 
       points.push_back(glm::vec3(0.0,0.0,0.0));
 
-      points.push_back(glm::vec3(-0.2,0.0,0.0));
-      points.push_back(glm::vec3(0.2,0.0,0.0));
-
-
-      points.push_back(glm::vec3(0.0,-0.2,0.0));
-      points.push_back(glm::vec3(0.0,0.2,0.0));
+      num_pts = points.size();
 
 
 
@@ -883,7 +888,6 @@ void DudesAndTreesModel::generate_points()
   //
   // subd_square(a, b, c, d);
   //
-  // num_pts = points.size();
   //
   // // cout << "num_pts is " << num_pts << endl;
 
@@ -952,9 +956,8 @@ void DudesAndTreesModel::display()
 
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-  glPointSize(20.0);
-  // glDrawArrays(GL_POINTS, 0, num_pts);
-  glDrawArrays(GL_POINTS, 0, 5);
+  glPointSize(10.0);
+  glDrawArrays(GL_POINTS, 0, num_pts);
 
 
 }

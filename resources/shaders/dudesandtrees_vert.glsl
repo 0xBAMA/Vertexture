@@ -4,6 +4,7 @@ in  vec3 vPosition;
 in  vec3 vNormal;
 in  vec3 vColor;
 out vec4 color;
+out vec4 norm;
 
 uniform int t;
 uniform int scroll;
@@ -31,18 +32,24 @@ void main()
 {
 
 
+
+
+  vec2 timeoffset = vec2(0.05 * sin(0.03 * t), 0.05 * cos(0.03 * t));
+
+
+
   vec4 trefh;
 
   switch(scroll)
   {
     case 0:
-      trefh = texture(rock_height_tex, scale * (0.25 * vPosition.xy));
+      trefh = texture(rock_height_tex, scale * (0.25 * vPosition.xy) + timeoffset);
       break;
     case 1:
-      trefh = texture(rock_height_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      trefh = texture(rock_height_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)) + timeoffset);
       break;
     case 2:
-      trefh = texture(rock_height_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      trefh = texture(rock_height_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)) + timeoffset);
       break;
     default:
       trefh = vec4(1.0, 0.0, 0.0, 1.0);
@@ -60,13 +67,13 @@ void main()
   switch(scroll)
   {
     case 0:
-      trefn = texture(rock_normal_tex, scale * (0.25 * vPosition.xy));
+      trefn = texture(rock_normal_tex, scale * (0.25 * vPosition.xy) + timeoffset);
       break;
     case 1:
-      trefn = texture(rock_normal_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      trefn = texture(rock_normal_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0))+ timeoffset);
       break;
     case 2:
-      trefn = texture(rock_normal_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      trefn = texture(rock_normal_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0))+timeoffset);
       break;
     default:
       trefn = vec4(1.0, 0.0, 0.0, 1.0);
@@ -74,7 +81,8 @@ void main()
   }
 
   // color = vec4(0.3*dot(trefh, trefn));
-  color = trefh;
+  norm = trefn;
+  color = vec4(0.2,0.6,0.2,1.0);
 
 
 
@@ -111,7 +119,7 @@ void main()
 
 
   // vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + <vec4 representing offset from ground> + + 0.2 * vec4(0,0,trefh.z - 0.5,0);
-  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.2 * vec4(0,0,trefh.z - 0.5,0);
+  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) - 0.1 * vec4(timeoffset.x,timeoffset.y,trefh.z - 0.5,0);
 
   // gl_Position = proj * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 0.003*t) * vPosition_local;
 
