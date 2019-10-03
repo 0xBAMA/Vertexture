@@ -640,6 +640,11 @@ private:
   GLuint uProj;   //projection matrix
   GLuint uScroll;
   GLuint uScale;
+  GLuint uColor;
+  GLuint uPosition;
+
+
+
 
   GLuint uHeightSampler;  //textures
   GLuint uNormalSampler;
@@ -651,6 +656,9 @@ private:
   int time;
   int scroll;
   float scale;
+
+  glm::vec3 point_sprite_color;
+  glm::vec3 point_sprite_position;
 
   glm::mat4 proj;
 
@@ -732,6 +740,13 @@ DudesAndTreesModel::DudesAndTreesModel()
   glUniform1f(uScale, scale);
 
 
+  point_sprite_color = glm::vec3(0.0,0.0,0.0);
+  uColor = glGetUniformLocation(shader_program, "ucolor");
+  glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
+
+  point_sprite_position = glm::vec3(0.0,0.0,0.0);
+  uPosition = glGetUniformLocation(shader_program, "offset");
+  glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
 
 
   //THE TEXTURE
@@ -957,7 +972,48 @@ void DudesAndTreesModel::display()
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
   glPointSize(10.0);
-  glDrawArrays(GL_POINTS, 0, num_pts);
+
+
+
+
+  // point_sprite_color = glm::vec3(0.3,0.0,0.0);
+  // glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
+  // point_sprite_position = glm::vec3(0.3,0,0);
+  // glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
+  //
+  // //draw a point
+  // glDrawArrays(GL_POINTS, 0, num_pts);
+  //
+  //
+  //
+  // point_sprite_color = glm::vec3(0.0,0.3,0.0);
+  // glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
+  // point_sprite_position = glm::vec3(0,0.3,0);
+  // glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
+  //
+  // //draw a point
+  // glDrawArrays(GL_POINTS, 0, num_pts);
+  //
+  //
+  //
+  // point_sprite_color = glm::vec3(0.25,0.3,0.0);
+  // glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
+  // point_sprite_position = glm::vec3(0.1,0.2,0);
+  // glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
+  //
+  // //draw a point
+  // glDrawArrays(GL_POINTS, 0, num_pts);
+
+  for(int i = 0; i < 100; i++)
+  {
+    point_sprite_color = glm::vec3(0.1 * i,0.3,0.0);
+    glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
+    point_sprite_position = glm::vec3(0.01 * i,0.2,0);
+    glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
+
+    //draw a point
+    glDrawArrays(GL_POINTS, 0, num_pts);
+  }
 
 
 }
