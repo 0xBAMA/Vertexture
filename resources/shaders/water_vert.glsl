@@ -36,7 +36,7 @@ mat4 rotationMatrix(vec3 axis, float angle)
 void main()
 {
 
-  vec2 offset = vec2(0.005 * t, 0.001 * t);
+  vec2 offset = vec2(0.0005 * t, 0.0001 * t);
 
 
   vec4 ground_read;
@@ -78,7 +78,7 @@ void main()
 
   if(ground_read.x > 0.49)  //the water is within 0.01 of the ground
   {
-    height_read.x *= 0.3 * (sin(0.08 * t) + 1.0);
+    height_read.x *= 0.3 * (sin(0.08 * t) + 1.0) * sin(vPosition.x * vPosition.y * 0.01);
     // color.b *= (sin(0.08 * t) + 2.0);
     // color.b *= (ground_read.x - 0.48) / 0.01;
   }

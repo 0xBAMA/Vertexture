@@ -117,6 +117,8 @@ void init()
   glEnable              ( GL_DEBUG_OUTPUT );
   glDebugMessageCallback( MessageCallback, 0 );
 
+  cout << endl << endl << " GL_DEBUG_OUTPUT ENABLED " << endl;
+
 
 
 
@@ -315,7 +317,24 @@ int main(int argc, char **argv)
   // glutReshapeFunc(reshape);
 
   GLint textureCount;
-  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureCount); printf("%d texture units available.\n", textureCount);
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureCount);
+
+  cout << endl << " GL_MAX_TEXTURE_IMAGE_UNITS returned:" << textureCount << endl;
+
+
+  GLint data[3];
+
+  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,0, &data[0]);
+  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,1, &data[1]);
+  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,2, &data[2]);
+
+  cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_COUNT returned x:" << data[0] << " y:" << data[1] << " z:" << data[2] << endl;
+
+
+  GLint max;
+  glGetIntegerv(  GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max);
+
+  cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS returned:" << max << endl << endl;
 
 
 

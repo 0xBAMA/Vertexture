@@ -39,6 +39,8 @@ using std::endl;
 
 
 #define GROUND_NORMAL_PATH "resources/textures/normals/rock_norm.png"
+#define GROUND_NORMAL2_PATH "resources/textures/normals/rock_norm_smooth1.png"
+#define GROUND_NORMAL3_PATH "resources/textures/normals/rock_norm_smooth2.png"
 
 #define GROUND_TEXTURE_PATH "resources/textures/height/rock_height.png"
 // #define GROUND_TEXTURE_PATH "resources/textures/height/penny.png"
@@ -193,7 +195,11 @@ public:
 private:
   GLuint vao;
   GLuint buffer;
-  GLuint tex;
+
+  GLuint height_tex;
+  GLuint normal_tex_1;
+  GLuint normal_tex_2;
+  GLuint normal_tex_3;
 
   GLuint shader_program;
   GLuint selection_shader_program;
@@ -211,7 +217,10 @@ private:
   GLuint uScroll;
   GLuint uScale;
 
-
+  GLuint uHeightSampler;
+  GLuint uNormal1Sampler;
+  GLuint uNormal2Sampler;
+  GLuint uNormal3Sampler;
 
 //VALUES OF THOSE UNIFORMS
   int time;
@@ -307,9 +316,19 @@ GroundModel::GroundModel()
   //THE TEXTURE
 
   std::vector<unsigned char> image;
+  std::vector<unsigned char> image2;
+  std::vector<unsigned char> image3;
+  std::vector<unsigned char> image4;
 
   unsigned width, height;
+  unsigned width2, height2;
+  unsigned width3, height3;
+  unsigned width4, height4;
+
   unsigned error = lodepng::decode(image, width, height, GROUND_TEXTURE_PATH, LodePNGColorType::LCT_RGBA, 8);
+  unsigned error2 = lodepng::decode(image2, width2, height2, GROUND_NORMAL_PATH, LodePNGColorType::LCT_RGBA, 8);
+  unsigned error3 = lodepng::decode(image3, width3, height3, GROUND_NORMAL2_PATH, LodePNGColorType::LCT_RGBA, 8);
+  unsigned error4 = lodepng::decode(image4, width4, height4, GROUND_NORMAL3_PATH, LodePNGColorType::LCT_RGBA, 8);
 
 
   // If there's an error, display it.
@@ -317,16 +336,24 @@ GroundModel::GroundModel()
     std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
   }
 
+  if(error2 != 0) {
+    std::cout << "error2 with lodepng texture loading " << error2 << ": " << lodepng_error_text(error2) << std::endl;
+  }
+
+  if(error3 != 0) {
+    std::cout << "error3 with lodepng texture loading " << error3 << ": " << lodepng_error_text(error3) << std::endl;
+  }
+
+  if(error4 != 0) {
+    std::cout << "error4 with lodepng texture loading " << error4 << ": " << lodepng_error_text(error4) << std::endl;
+  }
+
   glEnable(GL_TEXTURE_2D);
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
+  glGenTextures(1, &height_tex);
+  glBindTexture(GL_TEXTURE_2D, height_tex);
 
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -334,7 +361,74 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  glPointSize(GLOBAL_POINTSIZE);
+
+
+
+
+
+
+  glGenTextures(1, &normal_tex_1);
+  glBindTexture(GL_TEXTURE_2D, normal_tex_1);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+
+
+
+
+
+
+
+  glGenTextures(1, &normal_tex_2);
+  glBindTexture(GL_TEXTURE_2D, normal_tex_2);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image3[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+
+
+
+
+
+
+
+
+  glGenTextures(1, &normal_tex_3);
+  glBindTexture(GL_TEXTURE_2D, normal_tex_3);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image4[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+
+  uHeightSampler = glGetUniformLocation(shader_program, "height_tex");
+  uNormal1Sampler = glGetUniformLocation(shader_program, "normal_tex");
+  uNormal2Sampler = glGetUniformLocation(shader_program, "normal_smooth1_tex");
+  uNormal3Sampler = glGetUniformLocation(shader_program, "normal_smooth2_tex");
+
+  glUniform1i(uHeightSampler, 0);  //height in texture unit 0
+  glUniform1i(uNormal1Sampler, 1);  //normal1 goes in texture unit 1
+  glUniform1i(uNormal2Sampler, 2);  //normal2 goes in texture unit 2
+  glUniform1i(uNormal3Sampler, 3);  //normal3 goes in texture unit 3
+
 
 }
 
@@ -415,12 +509,25 @@ void GroundModel::display()
   glBindVertexArray(vao);
   glUseProgram(shader_program);
 
-  glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-  glBindTexture(GL_TEXTURE_2D, tex);
+  // glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+  // glBindTexture(GL_TEXTURE_2D, tex);
 
   glUniform1i(uTime, time);
   glUniform1i(uScroll, scroll);
   glUniform1f(uScale, scale);
+
+
+  glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+  glBindTexture(GL_TEXTURE_2D, height_tex);
+
+  glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+  glBindTexture(GL_TEXTURE_2D, normal_tex_1);
+
+  glActiveTexture(GL_TEXTURE0 + 2); // Texture unit 2
+  glBindTexture(GL_TEXTURE_2D, normal_tex_2);
+
+  glActiveTexture(GL_TEXTURE0 + 3); // Texture unit 3
+  glBindTexture(GL_TEXTURE_2D, normal_tex_3);
 
 
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
@@ -1148,7 +1255,7 @@ void WaterModel::generate_points()
 
 void WaterModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  if(glm::distance(a, b) < 0.5*MIN_POINT_PLACEMENT_THRESHOLD)
+  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
   {//add points
     // triangle 1 ABC
     points.push_back(a);
@@ -1709,7 +1816,7 @@ CloudModel::CloudModel()
   // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals, num_bytes_colors, &colors[0]);
 
   //SHADERS (COMPILE, USE)
-
+  cout << "compiling cloud shaders" << endl;
   Shader s("resources/shaders/cloud_vert.glsl", "resources/shaders/cloud_frag.glsl");
 
   shader_program = s.Program;
@@ -1746,11 +1853,11 @@ CloudModel::CloudModel()
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_3D, tex);
 
-  // glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);

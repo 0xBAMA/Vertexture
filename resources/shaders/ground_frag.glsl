@@ -1,5 +1,6 @@
 #version 330
 varying  vec4 color;
+varying  vec3 norm;
 
 
 void
@@ -8,6 +9,8 @@ main()
 
     // gl_FragColor = vec4(color.rgb * (0.8f-gl_FragCoord.z), 1.0f);
     gl_FragColor = color;
+    gl_FragColor *= dot(vec3(0.0,0.0,1.0),norm);
+    // gl_FragColor.xyz = norm;
 
 
     //fcymod3 is used to draw something along the lines of scanlines
