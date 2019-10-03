@@ -6,7 +6,7 @@ GL_FLAGS = -lglut -lGLEW -lGL -lGLU
 
 LODEPNG_FLAGS = resources/LodePNG/lodepng.cpp -ansi -O3 -std=c++11
 
-UNNECCESARY_DEBUG = -Wall -Wextra -pedantic
+#UNNECCESARY_DEBUG = -Wall -Wextra -pedantic
 
 all: build
 
