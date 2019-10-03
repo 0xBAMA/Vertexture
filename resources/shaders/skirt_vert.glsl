@@ -40,7 +40,11 @@ void main()
 
   vec4 vPosition_local = vec4(0.5*vPosition, 1.0f);
 
-  // color = vec4(0.5);
+  vec2 offset = vec2(0.0005 * t, 0.0001 * t);
+  vec4 height_read = texture(water_tex, 2*vPosition.xy + offset);
+
+
+  // color = height_read;
 
   // float scale = 1.0;
 
@@ -60,7 +64,10 @@ void main()
       break;
   }
 
-  vpos = vPosition_local;
+  // float height_offset = 0.2 * (color.z - 0.5);
+
+
+  vpos = vPosition_local - vec4(0,0,0.005,0);
 
   gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
 

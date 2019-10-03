@@ -73,19 +73,8 @@ void main()
   color = color_read / 1.618;
 
 
-  if(ground_read.x > 0.49)
-    color = vec4(1.0, 0.0, 0.0, 1.0);
-  else
-    color = vec4(0.0, 0.0, 1.0, 1.0);
+  height_read.x *= 0.1 * (sin(0.08 * t) + 1.0) * sin(vPosition.x * vPosition.y * 0.01);
 
-
-
-  if(ground_read.x > 0.49)  //the water is within 0.01 of the ground
-  {
-    height_read.x *= 0.3 * (sin(0.08 * t) + 1.0) * sin(vPosition.x * vPosition.y * 0.01);
-    // color.b *= (sin(0.08 * t) + 2.0);
-    // color.b *= (ground_read.x - 0.48) / 0.01;
-  }
 
 
   vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + vec4(0.0, 0.0, 0.01 * height_read.x, 0.0);

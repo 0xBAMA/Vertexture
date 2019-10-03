@@ -33,9 +33,7 @@ using std::endl;
 
 
 
-
-
-
+#define POINT_SPRITE_PATH "resources/textures/height/sphere_small.png"
 
 
 #define GROUND_NORMAL_PATH "resources/textures/normals/rock_norm.png"
@@ -1106,6 +1104,7 @@ WaterModel::WaterModel()
 
 
 
+
   //THE TEXTURE
 
   std::vector<unsigned char> image;
@@ -1329,8 +1328,8 @@ void WaterModel::display()
   glUniform1i(uTime, time);
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
   glUniform1f(uThresh, thresh);
-  glUniform1i(uScroll, scroll);
   glUniform1f(uScale, scale);
+  glUniform1i(uScroll, scroll);
 
 
   // glDrawArrays(GL_POINTS, 0, num_pts);
@@ -1534,18 +1533,22 @@ SkirtModel::SkirtModel()
   //THE TEXTURE
 
   std::vector<unsigned char> image;
+  std::vector<unsigned char> image2;
 
   unsigned width, height;
   unsigned error = lodepng::decode(image, width, height, GROUND_TEXTURE_PATH, LodePNGColorType::LCT_RGBA, 8);
 
-  // for(auto el:image)
-  // {
-  //   cout << el;  //I'm getting an image...
-  // }
+  unsigned width2, height2;
+  unsigned error2 = lodepng::decode(image2, width2, height2, "resources/textures/height/wave_height.png", LodePNGColorType::LCT_RGBA, 8);
+
 
   // If there's an error, display it.
   if(error != 0) {
     std::cout << "error with lodepng texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
+  }
+
+  if(error2 != 0) {
+    std::cout << "error2 with lodepng texture loading " << error2 << ": " << lodepng_error_text(error2) << std::endl;
   }
 
   glEnable(GL_TEXTURE_2D);
@@ -1580,15 +1583,12 @@ SkirtModel::SkirtModel()
 
 
 
-  // ground_tex_sampler = glGetUniformLocation(shader_program, "ground_tex");
-  // displacement_tex_sampler = glGetUniformLocation(shader_program, "height_tex");
-  // normal_tex_sampler = glGetUniformLocation(shader_program, "normal_tex");
-  // color_tex_sampler = glGetUniformLocation(shader_program, "color_tex");
-  //
-  // glUniform1i(displacement_tex_sampler,   0);   //height of the ground goes in texture unit 0
-  // glUniform1i(displacement_tex_sampler,   1);   //height goes in texture unit 1
-  // glUniform1i(normal_tex_sampler,   2);   //normal goes in texture unit 2
-  // glUniform1i(color_tex_sampler,   3);   //color  goes in texture unit 3
+  ground_tex_sampler = glGetUniformLocation(shader_program, "ground_tex");
+  water_tex_sampler = glGetUniformLocation(shader_program, "water_tex");
+
+  glUniform1i(ground_tex_sampler,   0);   //height of the ground goes in texture unit 0
+  glUniform1i(water_tex_sampler,   1);   //height of the water goes in texture unit 1
+
 
 
 
