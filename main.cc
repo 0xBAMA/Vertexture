@@ -154,12 +154,13 @@ extern "C" void display()
   if(drawground)
     ground->display();
 
-//DRAW THE DUDES AND TREES
-  // datmodel->display();
 
 
 //DRAW THE WATER
   water->display();
+
+//DRAW THE DUDES AND TREES
+  datmodel->display();
 
 
 //DRAW THE CLOUDS

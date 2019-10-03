@@ -4,6 +4,8 @@ varying  vec3 norm;
 
 bool depthcolor = false;
 
+
+
 void
 main()
 {
@@ -11,6 +13,8 @@ main()
 
     gl_FragColor *= dot(vec3(1,1,1), norm);
     gl_FragColor.a *= 0.2;
+
+
 
     //these are used to draw something along the lines of scanlines (per-pixel and dithering-style effects)
     int fcxmod2 = int(gl_FragCoord.x) % 2;

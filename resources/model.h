@@ -367,6 +367,8 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  cout << "loaded height texture" << endl;
+
 
 
 
@@ -385,6 +387,7 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  cout << "loaded normal texture" << endl;
 
 
 
@@ -405,6 +408,7 @@ GroundModel::GroundModel()
   glGenerateMipmap(GL_TEXTURE_2D);
 
 
+  cout << "loaded normal texture2" << endl;
 
 
 
@@ -423,6 +427,9 @@ GroundModel::GroundModel()
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image4[0]);
 
   glGenerateMipmap(GL_TEXTURE_2D);
+
+  cout << "loaded normal texture3" << endl;
+
 
 
   uHeightSampler = glGetUniformLocation(shader_program, "height_tex");
@@ -514,9 +521,6 @@ void GroundModel::display()
 {
   glBindVertexArray(vao);
   glUseProgram(shader_program);
-
-  // glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-  // glBindTexture(GL_TEXTURE_2D, tex);
 
   glUniform1i(uTime, time);
   glUniform1i(uScroll, scroll);
@@ -620,6 +624,7 @@ private:
   GLuint buffer;
   GLuint ground_tex;
   GLuint ground_norm_tex;
+  GLuint point_sprite;
 
   GLuint shader_program;
 
@@ -638,6 +643,7 @@ private:
 
   GLuint uHeightSampler;  //textures
   GLuint uNormalSampler;
+  GLuint uPointSpriteSampler;
 
 
 
@@ -732,6 +738,7 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   std::vector<unsigned char> image;
   std::vector<unsigned char> image2;
+  std::vector<unsigned char> image3;
 
   unsigned width, height;
   unsigned error = lodepng::decode(image, width, height, GROUND_TEXTURE_PATH, LodePNGColorType::LCT_RGBA, 8);
@@ -740,6 +747,9 @@ DudesAndTreesModel::DudesAndTreesModel()
   unsigned error2 = lodepng::decode(image2, width2, height2, GROUND_NORMAL_PATH, LodePNGColorType::LCT_RGBA, 8);
 
 
+  unsigned width3, height3;
+  unsigned error3 = lodepng::decode(image3, width3, height3, POINT_SPRITE_PATH, LodePNGColorType::LCT_RGBA, 8);
+
   // If there's an error, display it.
   if(error != 0) {
     std::cout << "error with lodepng ground height texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
@@ -747,8 +757,13 @@ DudesAndTreesModel::DudesAndTreesModel()
 
 
   if(error2 != 0) {
-    std::cout << "error with lodepng ground normal texture loading " << error << ": " << lodepng_error_text(error2) << std::endl;
+    std::cout << "error with lodepng ground normal texture loading " << error2 << ": " << lodepng_error_text(error2) << std::endl;
   }
+
+  if(error3 != 0) {
+    std::cout << "error with lodepng ground normal texture loading " << error3 << ": " << lodepng_error_text(error3) << std::endl;
+  }
+
 
   glEnable(GL_TEXTURE_2D);
   glGenTextures(1, &ground_tex);
@@ -763,6 +778,8 @@ DudesAndTreesModel::DudesAndTreesModel()
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 
   glGenerateMipmap(GL_TEXTURE_2D);
+
+  cout << "loaded ground texture" << endl;
 
 
 
@@ -780,17 +797,39 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  cout << "loaded ground normal texture" << endl;
+
+
+
+
+
+
+
+  glGenTextures(1, &point_sprite);
+
+  glBindTexture(GL_TEXTURE_2D, point_sprite);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 64, 64, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image3[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  cout << "loaded point sprite texture" << endl;
+
+
 
 
   uHeightSampler = glGetUniformLocation(shader_program, "rock_height_tex");
   uNormalSampler = glGetUniformLocation(shader_program, "rock_normal_tex");
+  uPointSpriteSampler = glGetUniformLocation(shader_program, "point_sprite");
 
   glUniform1i(uHeightSampler,   0);   //height goes in texture unit 0
   glUniform1i(uNormalSampler,   1);   //normal goes in texture unit 1
-
-
-
-  // glPointSize(GLOBAL_POINTSIZE);
+  glUniform1i(uPointSpriteSampler,   2);   //normal goes in texture unit 2
 
 }
 
@@ -814,57 +853,73 @@ DudesAndTreesModel::DudesAndTreesModel()
 
 void DudesAndTreesModel::generate_points()
 {
-  //GENERATING GEOMETRY
 
-  glm::vec3 a, b, c, d;
 
-  float scale = 1.618f;
-  // float scale = 0.9f;
 
-  a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
-  b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
-  c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
-  d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
+      points.push_back(glm::vec3(0.0,0.0,0.0));
 
-  subd_square(a, b, c, d);
+      points.push_back(glm::vec3(-0.2,0.0,0.0));
+      points.push_back(glm::vec3(0.2,0.0,0.0));
 
-  num_pts = points.size();
 
-  // cout << "num_pts is " << num_pts << endl;
+      points.push_back(glm::vec3(0.0,-0.2,0.0));
+      points.push_back(glm::vec3(0.0,0.2,0.0));
+
+
+
+
+
+  // //GENERATING GEOMETRY
+  //
+  // glm::vec3 a, b, c, d;
+  //
+  // float scale = 1.618f;
+  // // float scale = 0.9f;
+  //
+  // a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
+  // b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
+  // c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
+  // d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
+  //
+  // subd_square(a, b, c, d);
+  //
+  // num_pts = points.size();
+  //
+  // // cout << "num_pts is " << num_pts << endl;
 
 }
-
-void DudesAndTreesModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
-{
-  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
-  {//add points
-    // triangle 1 ABC
-    points.push_back(a);
-    points.push_back(b);
-    points.push_back(c);
-    //triangle 2 BCD
-    points.push_back(b);
-    points.push_back(c);
-    points.push_back(d);
-
-    //middle
-    // points.push_back((a+b+c+d)/4.0f);
-  }
-  else
-  { //recurse
-    glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
-
-    glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
-    glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
-    glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
-    glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
-
-    subd_square(abmidp, b, center, bdmidp);
-    subd_square(a, abmidp, acmidp, center);
-    subd_square(center, bdmidp, cdmidp, d);
-    subd_square(acmidp, center, c, cdmidp);
-  }
-}
+//
+// void DudesAndTreesModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
+// {
+//   if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+//   {//add points
+//     // triangle 1 ABC
+//     points.push_back(a);
+//     points.push_back(b);
+//     points.push_back(c);
+//     //triangle 2 BCD
+//     points.push_back(b);
+//     points.push_back(c);
+//     points.push_back(d);
+//
+//     //middle
+//     // points.push_back((a+b+c+d)/4.0f);
+//   }
+//   else
+//   { //recurse
+//     glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
+//
+//     glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
+//     glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
+//     glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
+//     glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
+//
+//     subd_square(abmidp, b, center, bdmidp);
+//     subd_square(a, abmidp, acmidp, center);
+//     subd_square(center, bdmidp, cdmidp, d);
+//     subd_square(acmidp, center, c, cdmidp);
+//   }
+// }
 
 
   //****************************************************************************
@@ -880,13 +935,14 @@ void DudesAndTreesModel::display()
   glBindVertexArray(vao);
   glUseProgram(shader_program);
 
-  // glBindTexture(GL_TEXTURE_2D, tex);
-
   glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
   glBindTexture(GL_TEXTURE_2D, ground_tex);
 
   glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
   glBindTexture(GL_TEXTURE_2D, ground_norm_tex);
+
+  glActiveTexture(GL_TEXTURE0 + 2); // Texture unit 2
+  glBindTexture(GL_TEXTURE_2D, point_sprite);
 
 
   glUniform1i(uTime, time);
@@ -895,12 +951,12 @@ void DudesAndTreesModel::display()
 
 
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
-  // glUniform1i(uScan, scan);
-  // glUniform1i(uDcol, dcolor);
 
+  glPointSize(20.0);
   // glDrawArrays(GL_POINTS, 0, num_pts);
+  glDrawArrays(GL_POINTS, 0, 5);
 
-  glDrawArrays(GL_TRIANGLES, 0, num_pts);
+
 }
 
 
@@ -1158,6 +1214,9 @@ WaterModel::WaterModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  cout << "loaded ground texture" << endl;
+
+
 
 
   glEnable(GL_TEXTURE_2D);
@@ -1173,6 +1232,7 @@ WaterModel::WaterModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  cout << "loaded wave displacement texture" << endl;
 
 
 
@@ -1188,6 +1248,8 @@ WaterModel::WaterModel()
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image3[0]);
 
   glGenerateMipmap(GL_TEXTURE_2D);
+
+  cout << "loaded wave normal texture" << endl;
 
 
 
@@ -1205,6 +1267,8 @@ WaterModel::WaterModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+
+  cout << "loaded wave color texture" << endl;
 
 
 
@@ -1564,6 +1628,9 @@ SkirtModel::SkirtModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
+  cout << "loaded ground texture" << endl;
+
+
 
 
 
@@ -1580,6 +1647,9 @@ SkirtModel::SkirtModel()
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 
   glGenerateMipmap(GL_TEXTURE_2D);
+
+  cout << "loaded water texture" << endl;
+
 
 
 
@@ -1945,6 +2015,9 @@ CloudModel::CloudModel()
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, 256, 256, 256, 0,  GL_RGBA, GL_UNSIGNED_BYTE, &noise_data[0]);
 
   glGenerateMipmap(GL_TEXTURE_3D);
+
+  cout << "loaded cloud texture" << endl;
+
 
   glPointSize(GLOBAL_POINTSIZE);
 

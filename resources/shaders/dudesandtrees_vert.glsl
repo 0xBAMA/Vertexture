@@ -73,8 +73,8 @@ void main()
       break;
   }
 
-  color = vec4(0.3*dot(trefh, trefn));
-  // color = trefn;
+  // color = vec4(0.3*dot(trefh, trefn));
+  color = trefh;
 
 
 
