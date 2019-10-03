@@ -4,7 +4,7 @@ in  vec3 vPosition;
 in  vec3 vNormal;
 in  vec3 vColor;
 out vec4 color;
-out vec3 norm;
+out vec2 norm_coord;
 
 uniform int t;
 uniform int scroll;
@@ -43,34 +43,29 @@ void main()
   {
     case 0:
       tref = texture(height_tex, scale * (0.25 * vPosition.xy));
-      n1 = texture(normal_tex, scale * (0.25 * vPosition.xy));
-      n2 = texture(normal_smooth1_tex, scale * (0.25 * vPosition.xy));
-      n3 = texture(normal_smooth2_tex, scale * (0.25 * vPosition.xy));
+      norm_coord = scale * (0.25 * vPosition.xy);
 
       break;
     case 1:
       tref = texture(height_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      n1 = texture(normal_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      n2 = texture(normal_smooth1_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      n3 = texture(normal_smooth2_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      norm_coord = scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0));
+
       break;
     case 2:
       tref = texture(height_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      n1 = texture(normal_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      n2 = texture(normal_smooth1_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      n3 = texture(normal_smooth2_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      norm_coord = scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0));
+
       break;
     default:
       tref = vec4(1.0, 0.0, 0.0, 1.0);
-      n1 = vec4(1.0, 0.0, 0.0, 1.0);
-      n2 = vec4(1.0, 0.0, 0.0, 1.0);
-      n3 = vec4(1.0, 0.0, 0.0, 1.0);
+      norm_coord = vec2(1.0, 0.0);
+
       break;
   }
 
   vec4 vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.2 * vec4(0,0,tref.z - 0.5,0);
 
-  norm = (n1.xyz + n2.xyz + n3.xyz) / 3.0;
+  // norm = (n1.xyz + n2.xyz + n3.xyz) / 3.0;
 
   // gl_Position = proj * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 0.003*t) * vPosition_local;
 

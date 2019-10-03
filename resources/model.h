@@ -185,6 +185,7 @@ public:
 
   void set_time(int tin)        {time = tin;}
   void set_scroll(int sin)      {scroll = sin;}
+  void toggle_normals()         {if(show_normals==0){show_normals=1;}else{show_normals=0;}}
   void scale_up()               {scale *= 1.618f;}
   void scale_down()             {scale /= 1.618f;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
@@ -216,6 +217,9 @@ private:
   GLuint uProj;   //projection matrix
   GLuint uScroll;
   GLuint uScale;
+  GLuint uNorm;
+
+
 
   GLuint uHeightSampler;
   GLuint uNormal1Sampler;
@@ -224,6 +228,7 @@ private:
 
 //VALUES OF THOSE UNIFORMS
   int time;
+  int show_normals;
   int scroll;
   float scale;
 
@@ -303,6 +308,9 @@ GroundModel::GroundModel()
   uScroll = glGetUniformLocation(shader_program, "scroll");
   glUniform1i(uScroll, scroll);
 
+  uNorm = glGetUniformLocation(shader_program, "show_normals");
+  glUniform1i(uNorm, show_normals);
+
   uProj = glGetUniformLocation(shader_program, "proj");
   proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
@@ -352,8 +360,8 @@ GroundModel::GroundModel()
   glGenTextures(1, &height_tex);
   glBindTexture(GL_TEXTURE_2D, height_tex);
 
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -370,8 +378,8 @@ GroundModel::GroundModel()
   glGenTextures(1, &normal_tex_1);
   glBindTexture(GL_TEXTURE_2D, normal_tex_1);
 
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -389,8 +397,8 @@ GroundModel::GroundModel()
   glGenTextures(1, &normal_tex_2);
   glBindTexture(GL_TEXTURE_2D, normal_tex_2);
 
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -409,8 +417,8 @@ GroundModel::GroundModel()
   glGenTextures(1, &normal_tex_3);
   glBindTexture(GL_TEXTURE_2D, normal_tex_3);
 
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -515,6 +523,7 @@ void GroundModel::display()
   glUniform1i(uTime, time);
   glUniform1i(uScroll, scroll);
   glUniform1f(uScale, scale);
+  glUniform1i(uNorm, show_normals);
 
 
   glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0

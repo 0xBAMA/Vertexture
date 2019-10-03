@@ -241,6 +241,11 @@ extern "C" void keyboard(unsigned char key, int x, int y)
     temp_time = animation_time;
     rotate = !rotate;
     break;
+
+
+  case 'b':
+    ground->toggle_normals();
+    break;
   }
   glutPostRedisplay();
 }
