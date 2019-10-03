@@ -7,7 +7,7 @@ out vec4 color;
 
 out vec4 vpos;
 
-// out vec2 texcoord;
+// out vec2 ground_texcoord;
 
 uniform int t;
 uniform int scroll;
@@ -15,7 +15,9 @@ uniform float scale;
 uniform mat4 proj;
 
 uniform float thresh;
-uniform sampler2D tex;
+
+uniform sampler2D ground_tex;
+uniform sampler2D water_tex;
 
 
 //thanks to Neil Mendoza via http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
@@ -45,13 +47,13 @@ void main()
   switch(scroll)
   {
     case 0:
-      color = texture(tex, scale * (0.25 * vPosition.xy));
+      color = texture(ground_tex, scale * (0.25 * vPosition.xy));
       break;
     case 1:
-      color = texture(tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      color = texture(ground_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
       break;
     case 2:
-      color = texture(tex, scale * (0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+      color = texture(ground_tex, scale * (0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
       break;
     default:
       color = vec4(1.0, 0.0, 0.0, 1.0);

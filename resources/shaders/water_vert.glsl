@@ -56,10 +56,6 @@ void main()
         break;
     }
 
-    // if(ground_read.x > 0.49)
-    //   color = vec4(1.0, 0.0, 0.0, 1.0);
-    // else
-    //   color = vec4(0.0, 0.0, 1.0, 1.0);
 
 
 
@@ -73,7 +69,15 @@ void main()
   vec4 normal_read = texture(normal_tex, 2*vPosition.xy + offset);
   vec4 color_read = texture(color_tex, 2*vPosition.xy + offset);
 
-  color = (normal_read + color_read) / 2;
+  // color = (normal_read + color_read) / 2;//wrong but looks interesting
+  color = color_read / 1.618;
+
+
+  if(ground_read.x > 0.49)
+    color = vec4(1.0, 0.0, 0.0, 1.0);
+  else
+    color = vec4(0.0, 0.0, 1.0, 1.0);
+
 
 
   if(ground_read.x > 0.49)  //the water is within 0.01 of the ground

@@ -1217,7 +1217,7 @@ WaterModel::WaterModel()
   normal_tex_sampler = glGetUniformLocation(shader_program, "normal_tex");
   color_tex_sampler = glGetUniformLocation(shader_program, "color_tex");
 
-  glUniform1i(displacement_tex_sampler,   0);   //height of the ground goes in texture unit 0
+  glUniform1i(ground_tex_sampler,   0);   //height of the ground goes in texture unit 0
   glUniform1i(displacement_tex_sampler,   1);   //height goes in texture unit 1
   glUniform1i(normal_tex_sampler,   2);   //normal goes in texture unit 2
   glUniform1i(color_tex_sampler,   3);   //color  goes in texture unit 3
@@ -1418,7 +1418,9 @@ public:
 private:
   GLuint vao;
   GLuint buffer;
-  GLuint tex;
+  GLuint ground_tex, water_tex;
+
+  GLuint ground_tex_sampler, water_tex_sampler;
 
   GLuint shader_program;
 
@@ -1547,15 +1549,11 @@ SkirtModel::SkirtModel()
   }
 
   glEnable(GL_TEXTURE_2D);
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
-
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glGenTextures(1, &ground_tex);
+  glBindTexture(GL_TEXTURE_2D, ground_tex);
 
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -1563,7 +1561,36 @@ SkirtModel::SkirtModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  glPointSize(GLOBAL_POINTSIZE);
+
+
+
+
+
+  glGenTextures(1, &water_tex);
+  glBindTexture(GL_TEXTURE_2D, water_tex);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+
+
+  // ground_tex_sampler = glGetUniformLocation(shader_program, "ground_tex");
+  // displacement_tex_sampler = glGetUniformLocation(shader_program, "height_tex");
+  // normal_tex_sampler = glGetUniformLocation(shader_program, "normal_tex");
+  // color_tex_sampler = glGetUniformLocation(shader_program, "color_tex");
+  //
+  // glUniform1i(displacement_tex_sampler,   0);   //height of the ground goes in texture unit 0
+  // glUniform1i(displacement_tex_sampler,   1);   //height goes in texture unit 1
+  // glUniform1i(normal_tex_sampler,   2);   //normal goes in texture unit 2
+  // glUniform1i(color_tex_sampler,   3);   //color  goes in texture unit 3
+
+
 
 }
 
@@ -1667,7 +1694,10 @@ void SkirtModel::display()
   glUseProgram(shader_program);
 
   glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-  glBindTexture(GL_TEXTURE_2D, tex);
+  glBindTexture(GL_TEXTURE_2D, ground_tex);
+
+  glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+  glBindTexture(GL_TEXTURE_2D, water_tex);
 
   glUniform1i(uTime, time);
   glUniform1f(uScale, scale);
