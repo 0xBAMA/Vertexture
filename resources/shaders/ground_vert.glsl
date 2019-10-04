@@ -75,8 +75,14 @@ void main()
   // color = vec4(vPosition.x, vPosition.y, vPosition.z, 1.0f);
 
   color = tref;
-  color.r *= 0.9;
-  color.g *= 0.7;
-  color.b *= 0.3;
+  // color.r *= 0.9;
+  // color.g *= 0.7;
+  // color.b *= 0.3;
+
+
+  color.r *= 0.4;
+  color.g *= 0.5;
+  color.b *= 0.7;
+
 
 }

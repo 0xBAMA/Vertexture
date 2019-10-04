@@ -18,7 +18,8 @@ main()
 
     if(vpos.z < 0.0 + height_offset)
     {
-      gl_FragColor  = vec4((vpos.z + 0.2) * vec3(0.55, 0.45, 0.15), 1.0); //the ground's color
+      gl_FragColor  = vec4((vpos.z + 0.2) * vec3(0.3, 0.4, 0.8), 1.0); //the ground's color
+      // gl_FragColor  = vec4((vpos.z + 0.2) * vec3(0.55, 0.45, 0.15), 1.0); //the ground's color
 
       //fcymod3 is used to draw something along the lines of scanlines
       int fcxmod2 = int(gl_FragCoord.x) % 2;

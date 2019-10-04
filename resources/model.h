@@ -971,7 +971,7 @@ void DudesAndTreesModel::display()
 
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-  glPointSize(10.0);
+  glPointSize(20.0);
 
 
 
@@ -1006,9 +1006,21 @@ void DudesAndTreesModel::display()
 
   for(int i = 0; i < 100; i++)
   {
-    point_sprite_color = glm::vec3(0.1 * i,0.3,0.0);
+    
+    point_sprite_color = glm::vec3(0.0,0.7,0.2);
+
+    if(i % 5 == 0)
+      point_sprite_color = glm::vec3(0.0,0.0,0.0);
+
+    if(i % 3 == 0)
+      point_sprite_color = glm::vec3(0.8,0.2,0.0);
+
+    if(i % 5 == 2)
+      point_sprite_color = glm::vec3(0.0,0.0,1.0);
+
+
     glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
-    point_sprite_position = glm::vec3(0.01 * i,0.2,0);
+    point_sprite_position = glm::vec3(0.008 * i * cos(i),0.008*i*sin(i),0.1);
     glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
 
     //draw a point
