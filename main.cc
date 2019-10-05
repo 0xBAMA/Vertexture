@@ -25,6 +25,8 @@ SkirtModel*        skirts;
 
 //should you draw the models?
 bool drawground = true;
+bool drawwater = true;
+
 bool drawclouds = false;
 
 
@@ -132,7 +134,7 @@ void init()
 
 //----------------------------------------------------------------------------
 
-extern "C" void display()
+void display()
 {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -150,25 +152,34 @@ extern "C" void display()
 
 
 
-//DRAW THE GROUND
-  if(drawground)
-    ground->display();
+
+      ground->display(true);
+      datmodel->display();
 
 
 
-//DRAW THE WATER
-  water->display();
-
-//DRAW THE DUDES AND TREES
-  datmodel->display();
 
 
-//DRAW THE CLOUDS
-  if(drawclouds)
-    clouds->display();
-
-//DRAW THE SKIRTS
-  skirts->display();
+// //DRAW THE GROUND
+//   if(drawground)
+//     ground->display();
+//
+//
+//
+// //DRAW THE WATER
+//   if(drawwater)
+//     water->display();
+//
+// //DRAW THE DUDES AND TREES
+//   // datmodel->display();
+//
+//
+// //DRAW THE CLOUDS
+//   if(drawclouds)
+//     clouds->display();
+//
+// //DRAW THE SKIRTS
+//   skirts->display();
 
 
 
@@ -184,7 +195,7 @@ extern "C" void display()
 
 //----------------------------------------------------------------------------
 
-extern "C" void keyboard(unsigned char key, int x, int y)
+void keyboard(unsigned char key, int x, int y)
 {
   switch (key) {
   case 033:
@@ -204,6 +215,12 @@ extern "C" void keyboard(unsigned char key, int x, int y)
   case 's':
     ground->scale_down();
     skirts->scale_down();
+    break;
+
+
+  case 'd':
+    //toggle drawing of ground
+    drawwater = !drawwater;
     break;
 
 
@@ -255,10 +272,74 @@ extern "C" void keyboard(unsigned char key, int x, int y)
 
 
 
+void mouse( int button, int state, int x, int y )
+{
+  if ( state == GLUT_DOWN )
+	{
+		switch( button )
+		{
+		    case GLUT_LEFT_BUTTON:    cout << "left" << endl;   break;
+		    case GLUT_MIDDLE_BUTTON:  cout << "middle" << endl; break;
+		    case GLUT_RIGHT_BUTTON:   cout << "right" << endl;  break;
+		}
+
+    if(button == GLUT_LEFT_BUTTON)
+    {
+
+      double phi = 1.618;
+
+      y = glutGet( GLUT_WINDOW_HEIGHT ) - y;
+
+      unsigned char pixel[4];
+      glReadPixels(x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+
+      float calcx = (-phi + ((2*phi)/(205))*((int)pixel[0]-25));
+      float calcy = (-phi + ((2*phi)/(205))*((int)pixel[1]-25));
+
+      cout << "R: " << (int)pixel[0] << " which is x: " << calcx << endl;
+      cout << "G: " << (int)pixel[1] << " which is y: " << calcy  << endl;
+      cout << "B: " << (int)pixel[2];
+
+      if((int) pixel[2] > 0)
+        cout << " which is ... UNDERWATER" << endl;
+
+      datmodel->set_pos(glm::vec3(calcx/2, calcy/2, 0.0), glm::vec3(1,0,(float)pixel[2]));
+
+      cout << endl;
+
+      //the r value ranges from 25 to 230 -> map to the range (-phi to phi)
+      //the g value ranges from 25 to 230 -> map to the range (-phi to phi)
+      //the b is usaully either 0 or 255  -> >0 tells you it's in the water
+
+
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+
+void timer(int)
+{
+	glutPostRedisplay();
+	glutTimerFunc(1000.0/60.0, timer, 0);
+}
+
+//----------------------------------------------------------------------------
+
+
+
+void idle( void )
+{
+	// glutPostRedisplay();
+}
+
+
+//----------------------------------------------------------------------------
+
 // static int menu_id;
 // static int submenu_id;
 //
-// extern "C" void menu(int choice)
+// void menu(int choice)
 // {
 //   cout << choice << endl;
 // }
@@ -320,6 +401,9 @@ int main(int argc, char **argv)
 
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
+  glutMouseFunc( mouse );
+  glutIdleFunc( idle );
+  glutTimerFunc(1000.0/60.0, timer, 0);
   // glutReshapeFunc(reshape);
 
   GLint textureCount;
@@ -341,6 +425,31 @@ int main(int argc, char **argv)
   glGetIntegerv(  GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max);
 
   cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS returned:" << max << endl << endl;
+
+
+
+  // if (glewIsSupported("GL_EXT_shader_image_load_store"))
+  // {  //supposedly you need this to write to a shader - (NOT ACCURATE 10/5 - but does require using image load/store)
+  //   cout << " GL_EXT_shader_image_load_store is supported" << endl;
+  // }
+
+
+
+
+
+  //checking extensions
+
+  cout << "list of extensions: " << endl;
+
+  GLint n=0;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+
+  for (GLint i=0; i<n; i++)
+  {
+    const char* extension =
+      (const char*)glGetStringi(GL_EXTENSIONS, i);
+    printf("      Ext %d: %s\n", i, extension);
+  }
 
 
 

@@ -70,7 +70,8 @@ void main()
   vec4 color_read = texture(color_tex, 2*vPosition.xy + offset);
 
   // color = (normal_read + color_read) / 2;//wrong but looks interesting
-  color = color_read / 1.618;
+  // color = color_read / 1.618;
+  color = color_read / 2;
 
 
   height_read.x *= 0.1 * (sin(0.08 * t) + 1.0) * sin(vPosition.x * vPosition.y * 0.01);

@@ -179,7 +179,7 @@ public:
 
   GroundModel();
 
-  void display();
+  void display(bool select=false);
 
   void set_time(int tin)        {time = tin;}
   void set_scroll(int sin)      {scroll = sin;}
@@ -291,6 +291,7 @@ GroundModel::GroundModel()
   selection_shader_program = s2.Program;
 
   glUseProgram(shader_program);
+  glUseProgram(selection_shader_program);
 
   //VERTEX ATTRIB AND UNIFORM LOCATIONS
 
@@ -517,37 +518,67 @@ void GroundModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d
   //    issues a draw call for the geometry representing this object
   //****************************************************************************
 
-void GroundModel::display()
+void GroundModel::display(bool select)
 {
   glBindVertexArray(vao);
-  glUseProgram(shader_program);
-
-  glUniform1i(uTime, time);
-  glUniform1i(uScroll, scroll);
-  glUniform1f(uScale, scale);
-  glUniform1i(uNorm, show_normals);
 
 
-  glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-  glBindTexture(GL_TEXTURE_2D, height_tex);
-
-  glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
-  glBindTexture(GL_TEXTURE_2D, normal_tex_1);
-
-  glActiveTexture(GL_TEXTURE0 + 2); // Texture unit 2
-  glBindTexture(GL_TEXTURE_2D, normal_tex_2);
-
-  glActiveTexture(GL_TEXTURE0 + 3); // Texture unit 3
-  glBindTexture(GL_TEXTURE_2D, normal_tex_3);
+  if(select)
+  {
+    glUseProgram(selection_shader_program);
 
 
-  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
-  // glUniform1i(uScan, scan);
-  // glUniform1i(uDcol, dcolor);
+    glUniform1i(uTime, time);
+    glUniform1i(uScroll, scroll);
+    glUniform1f(uScale, scale);
+    // glUniform1i(uNorm, show_normals);
 
-  // glDrawArrays(GL_POINTS, 0, num_pts);
 
-  glDrawArrays(GL_TRIANGLES, 0, num_pts);
+    glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+    glBindTexture(GL_TEXTURE_2D, height_tex);
+
+    glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+    glBindTexture(GL_TEXTURE_2D, normal_tex_1);
+
+    glActiveTexture(GL_TEXTURE0 + 2); // Texture unit 2
+    glBindTexture(GL_TEXTURE_2D, normal_tex_2);
+
+    glActiveTexture(GL_TEXTURE0 + 3); // Texture unit 3
+    glBindTexture(GL_TEXTURE_2D, normal_tex_3);
+
+
+    glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+    glDrawArrays(GL_TRIANGLES, 0, num_pts);
+  }
+  else
+  {
+    glUseProgram(shader_program);
+
+    glUniform1i(uTime, time);
+    glUniform1i(uScroll, scroll);
+    glUniform1f(uScale, scale);
+    glUniform1i(uNorm, show_normals);
+
+
+    glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+    glBindTexture(GL_TEXTURE_2D, height_tex);
+
+    glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+    glBindTexture(GL_TEXTURE_2D, normal_tex_1);
+
+    glActiveTexture(GL_TEXTURE0 + 2); // Texture unit 2
+    glBindTexture(GL_TEXTURE_2D, normal_tex_2);
+
+    glActiveTexture(GL_TEXTURE0 + 3); // Texture unit 3
+    glBindTexture(GL_TEXTURE_2D, normal_tex_3);
+
+
+    glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+    glDrawArrays(GL_TRIANGLES, 0, num_pts);
+
+  }
 }
 
 
@@ -615,6 +646,8 @@ public:
   void scale_up()               {scale *= 1.618f;}
   void scale_down()             {scale /= 1.618f;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
+
+  void set_pos(glm::vec3 pin, glm::vec3 cin)   {point_sprite_position = pin; point_sprite_color = cin;}
 
 
 
@@ -976,57 +1009,12 @@ void DudesAndTreesModel::display()
 
 
 
-  // point_sprite_color = glm::vec3(0.3,0.0,0.0);
-  // glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
-  // point_sprite_position = glm::vec3(0.3,0,0);
-  // glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
-  //
-  // //draw a point
-  // glDrawArrays(GL_POINTS, 0, num_pts);
-  //
-  //
-  //
-  // point_sprite_color = glm::vec3(0.0,0.3,0.0);
-  // glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
-  // point_sprite_position = glm::vec3(0,0.3,0);
-  // glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
-  //
-  // //draw a point
-  // glDrawArrays(GL_POINTS, 0, num_pts);
-  //
-  //
-  //
-  // point_sprite_color = glm::vec3(0.25,0.3,0.0);
-  // glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
-  // point_sprite_position = glm::vec3(0.1,0.2,0);
-  // glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
-  //
-  // //draw a point
-  // glDrawArrays(GL_POINTS, 0, num_pts);
-
-  for(int i = 0; i < 100; i++)
-  {
-    
-    point_sprite_color = glm::vec3(0.0,0.7,0.2);
-
-    if(i % 5 == 0)
-      point_sprite_color = glm::vec3(0.0,0.0,0.0);
-
-    if(i % 3 == 0)
-      point_sprite_color = glm::vec3(0.8,0.2,0.0);
-
-    if(i % 5 == 2)
-      point_sprite_color = glm::vec3(0.0,0.0,1.0);
-
 
     glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
-    point_sprite_position = glm::vec3(0.008 * i * cos(i),0.008*i*sin(i),0.1);
     glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
 
     //draw a point
     glDrawArrays(GL_POINTS, 0, num_pts);
-  }
-
 
 }
 

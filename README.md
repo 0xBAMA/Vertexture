@@ -13,3 +13,5 @@ fix selection (zero offset - currently half the board is clipping at 0, also mak
 write code to get color and then translate that to an x,y in main.cc, in the click callback
 
 pass that x,y, into the DudesAndTreesModel's function to handle that, drop the package
+
+  the simulation - listen to the audio recordings

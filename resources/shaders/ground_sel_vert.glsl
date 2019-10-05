@@ -50,7 +50,7 @@ void main()
 
   vec4 vPosition_local;
 
-  color = vec4(0.5 * vPosition.x, 0.5 * vPosition.y, 0.0, 1.0);
+  color = vec4(0.25 * vPosition.x+0.5, 0.25 * vPosition.y+0.5, 0.0, 1.0);
 
   if(tref.z < 0.5)
   {//water's surface
