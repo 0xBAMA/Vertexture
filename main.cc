@@ -153,33 +153,26 @@ void display()
 
 
 
-      ground->display(true);
-      datmodel->display();
+//DRAW THE GROUND
+  if(drawground)
+    ground->display();
 
 
 
+//DRAW THE WATER
+  if(drawwater)
+    water->display();
+
+//DRAW THE DUDES AND TREES
+  datmodel->display();
 
 
-// //DRAW THE GROUND
-//   if(drawground)
-//     ground->display();
-//
-//
-//
-// //DRAW THE WATER
-//   if(drawwater)
-//     water->display();
-//
-// //DRAW THE DUDES AND TREES
-//   // datmodel->display();
-//
-//
-// //DRAW THE CLOUDS
-//   if(drawclouds)
-//     clouds->display();
-//
-// //DRAW THE SKIRTS
-//   skirts->display();
+//DRAW THE CLOUDS
+  if(drawclouds)
+    clouds->display();
+
+//DRAW THE SKIRTS
+  skirts->display();
 
 
 
@@ -286,6 +279,18 @@ void mouse( int button, int state, int x, int y )
     if(button == GLUT_LEFT_BUTTON)
     {
 
+      //clear the screen
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+
+      //render with selection colors
+      ground->display(true);
+
+
+
+      //read out the pixel
+
       double phi = 1.618;
 
       y = glutGet( GLUT_WINDOW_HEIGHT ) - y;
@@ -303,13 +308,46 @@ void mouse( int button, int state, int x, int y )
       if((int) pixel[2] > 0)
         cout << " which is ... UNDERWATER" << endl;
 
-      datmodel->set_pos(glm::vec3(calcx/2, calcy/2, 0.0), glm::vec3(1,0,(float)pixel[2]));
-
-      cout << endl;
+      //do whatever you need to do
 
       //the r value ranges from 25 to 230 -> map to the range (-phi to phi)
       //the g value ranges from 25 to 230 -> map to the range (-phi to phi)
       //the b is usaully either 0 or 255  -> >0 tells you it's in the water
+
+      datmodel->set_pos(glm::vec3(calcx/2, calcy/2, 0.0), glm::vec3(1,0,(float)pixel[2]));
+
+      cout << endl;
+
+
+
+
+      //clear the screen
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      glutPostRedisplay();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     }
