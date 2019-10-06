@@ -283,7 +283,7 @@ GroundModel::GroundModel()
 
   // shader_program = InitShader("shaders/vSphere.glsl", "shaders/fSphere.glsl");
 
-  cout << "compiling ground shaders" << endl;
+  cout << " compiling ground shaders" << endl;
   Shader s("resources/shaders/ground_vert.glsl", "resources/shaders/ground_frag.glsl");
   Shader s2("resources/shaders/ground_sel_vert.glsl", "resources/shaders/ground_sel_frag.glsl");
 
@@ -368,7 +368,7 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded height texture" << endl;
+  cout << " loaded height texture" << endl;
 
 
 
@@ -388,7 +388,7 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded normal texture" << endl;
+  cout << " loaded normal texture" << endl;
 
 
 
@@ -409,7 +409,7 @@ GroundModel::GroundModel()
   glGenerateMipmap(GL_TEXTURE_2D);
 
 
-  cout << "loaded normal texture2" << endl;
+  cout << " loaded normal texture2" << endl;
 
 
 
@@ -429,7 +429,7 @@ GroundModel::GroundModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded normal texture3" << endl;
+  cout << " loaded normal texture3" << endl;
 
 
 
@@ -646,7 +646,7 @@ class DudesAndTreesModel
 
 public:
 
-  DudesAndTreesModel();
+  DudesAndTreesModel(int num_good_guys, int num_bad_guys, int num_trees, int num_boxes_initial);
 
   void display();
 
@@ -725,7 +725,7 @@ private:
   //****************************************************************************
 
 
-DudesAndTreesModel::DudesAndTreesModel()
+DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int num_trees, int num_boxes_initial)
 {
 
   //initialize all the vectors
@@ -735,49 +735,23 @@ DudesAndTreesModel::DudesAndTreesModel()
   generate_points();
 
 
+  cout << " Parameters of the game are as follows:" << endl;
+  cout << "  " << num_good_guys << " good guys" << endl;
+  cout << "  " << num_bad_guys << " bad guys" << endl;
+  cout << "  " << num_trees << " tree" << endl;
+  cout << "  " << num_boxes_initial << " boxes" << endl << endl;
 
 
 
+// //generate a list of entitites
+//   entity temp;
+//
+//   temp.location = glm::vec3(0.0f,0.0f,0.0f);
+//   temp.type = 0;
+//   temp.dead = false;
+//
+//   entities.push_back(temp);
 
-
-//generate a list of entitites
-  entity temp;
-
-  temp.location = glm::vec3(0.0f,0.0f,0.0f);
-  temp.type = 0;
-  temp.dead = false;
-
-  entities.push_back(temp);
-
-  temp.location = glm::vec3(0.0f,0.1f,0.0f);
-  temp.type = 0;
-  temp.dead = false;
-
-  entities.push_back(temp);
-
-  temp.location = glm::vec3(0.0f,0.2f,0.0f);
-  temp.type = 1;
-  temp.dead = false;
-
-  entities.push_back(temp);
-
-  temp.location = glm::vec3(0.0f,0.3f,0.0f);
-  temp.type = 0;
-  temp.dead = false;
-
-  entities.push_back(temp);
-
-  temp.location = glm::vec3(0.1f,0.3f,0.0f);
-  temp.type = 2;
-  temp.dead = false;
-
-  entities.push_back(temp);
-
-  temp.location = glm::vec3(0.1f,0.2f,0.0f);
-  temp.type = 3;
-  temp.dead = false;
-
-  entities.push_back(temp);
 
 
 
@@ -810,7 +784,7 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   //SHADERS (COMPILE, USE)
 
-  cout << "compiling dudesandtrees shaders" << endl;
+  cout << " compiling dudesandtrees shaders" << endl;
   Shader s("resources/shaders/dudesandtrees_vert.glsl", "resources/shaders/dudesandtrees_frag.glsl");
 
   shader_program = s.Program;
@@ -868,16 +842,16 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   // If there's an error, display it.
   if(error != 0) {
-    std::cout << "error with lodepng ground height texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
+    std::cout << "  error with lodepng ground height texture loading " << error << ": " << lodepng_error_text(error) << std::endl;
   }
 
 
   if(error2 != 0) {
-    std::cout << "error with lodepng ground normal texture loading " << error2 << ": " << lodepng_error_text(error2) << std::endl;
+    std::cout << "  error with lodepng ground normal texture loading " << error2 << ": " << lodepng_error_text(error2) << std::endl;
   }
 
   if(error3 != 0) {
-    std::cout << "error with lodepng ground normal texture loading " << error3 << ": " << lodepng_error_text(error3) << std::endl;
+    std::cout << "  error with lodepng ground normal texture loading " << error3 << ": " << lodepng_error_text(error3) << std::endl;
   }
 
 
@@ -895,7 +869,7 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded ground texture" << endl;
+  cout << " loaded ground texture" << endl;
 
 
 
@@ -913,7 +887,7 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded ground normal texture" << endl;
+  cout << " loaded ground normal texture" << endl;
 
 
 
@@ -934,7 +908,7 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded point sprite texture" << endl;
+  cout << " loaded point sprite texture" << endl;
 
 
 
@@ -992,7 +966,7 @@ void DudesAndTreesModel::generate_points()
 
       num_tree_pts = points.size();
 
-      cout << "num_tree_pts is " << num_tree_pts << endl;
+      // cout << "num_tree_pts is " << num_tree_pts << endl;
 
 
       //generate box points
@@ -1051,7 +1025,7 @@ void DudesAndTreesModel::generate_points()
 
       num_box_pts = points.size() - num_tree_pts;
 
-      cout << "num_box_pts is " << num_box_pts << endl;
+      // cout << "num_box_pts is " << num_box_pts << endl;
 
 
 
@@ -1360,7 +1334,7 @@ WaterModel::WaterModel()
 
   //SHADERS (COMPILE, USE)
 
-  cout << "compiling water shaders" << endl;
+  cout << " compiling water shaders" << endl;
   Shader s("resources/shaders/water_vert.glsl", "resources/shaders/water_frag.glsl");
 
   shader_program = s.Program;
@@ -1455,7 +1429,7 @@ WaterModel::WaterModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded ground texture" << endl;
+  cout << " loaded ground texture" << endl;
 
 
 
@@ -1473,7 +1447,7 @@ WaterModel::WaterModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded wave displacement texture" << endl;
+  cout << " loaded wave displacement texture" << endl;
 
 
 
@@ -1490,7 +1464,7 @@ WaterModel::WaterModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded wave normal texture" << endl;
+  cout << " loaded wave normal texture" << endl;
 
 
 
@@ -1509,7 +1483,7 @@ WaterModel::WaterModel()
   glGenerateMipmap(GL_TEXTURE_2D);
 
 
-  cout << "loaded wave color texture" << endl;
+  cout << " loaded wave color texture" << endl;
 
 
 
@@ -1796,7 +1770,7 @@ SkirtModel::SkirtModel()
 
   //SHADERS (COMPILE, USE)
 
-  cout << "compiling skirt shaders" << endl;
+  cout << " compiling skirt shaders" << endl;
   Shader s("resources/shaders/skirt_vert.glsl", "resources/shaders/skirt_frag.glsl");
 
   shader_program = s.Program;
@@ -1868,7 +1842,7 @@ SkirtModel::SkirtModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded ground texture" << endl;
+  cout << " loaded ground texture" << endl;
 
 
 
@@ -1888,7 +1862,7 @@ SkirtModel::SkirtModel()
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  cout << "loaded water texture" << endl;
+  cout << " loaded water texture" << endl;
 
 
 
@@ -2165,7 +2139,7 @@ CloudModel::CloudModel()
   // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals, num_bytes_colors, &colors[0]);
 
   //SHADERS (COMPILE, USE)
-  cout << "compiling cloud shaders" << endl;
+  cout << " compiling cloud shaders" << endl;
   Shader s("resources/shaders/cloud_vert.glsl", "resources/shaders/cloud_frag.glsl");
 
   shader_program = s.Program;
@@ -2218,6 +2192,9 @@ CloudModel::CloudModel()
   PerlinNoise p;
   unsigned char sample;
 
+  cout << " loading cloud texture" << endl;
+
+
   for(int x = 0; x < 256; x++)
   {
     for(int y = 0; y < 256; y++)
@@ -2256,7 +2233,7 @@ CloudModel::CloudModel()
 
   glGenerateMipmap(GL_TEXTURE_3D);
 
-  cout << "loaded cloud texture" << endl;
+  cout << "\r loaded cloud texture " << endl;
 
 
   glPointSize(GLOBAL_POINTSIZE);

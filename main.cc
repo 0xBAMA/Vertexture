@@ -23,6 +23,15 @@ CloudModel*        clouds;
 SkirtModel*        skirts;
 
 
+
+//parameters for the game
+int num_good_guys;
+int num_bad_guys;
+int num_trees;
+int num_boxes_initial;
+
+
+
 //should you draw the models?
 bool drawground = true;
 bool drawwater = true;
@@ -57,15 +66,17 @@ MessageCallback( GLenum source,
 
 
 
-
-
-
 void init()
 {
+  cout << "initializing ground model" << endl;
   ground = new GroundModel();
-  datmodel = new DudesAndTreesModel();
+  cout << "initializing dudesandtrees model" << endl;
+  datmodel = new DudesAndTreesModel(num_good_guys, num_bad_guys, num_trees, num_boxes_initial);
+  cout << "initializing water model" << endl;
   water = new WaterModel();
+  cout << "initializing cloud model" << endl;
   clouds = new CloudModel();
+  cout << "initializing skirt model" << endl;
   skirts = new SkirtModel();
 
 
@@ -328,28 +339,6 @@ void mouse( int button, int state, int x, int y )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
   }
 }
@@ -424,12 +413,50 @@ int main(int argc, char **argv)
 
 
 
+  if(argc == 5)
+  {
+    //first arg is application name
+    // cout << argv[0] << endl;
+
+    //second arg is number of good guys to use for the simulation
+    num_good_guys = atoi(argv[1]);
+
+    //third arg is the number of bad guys present
+    num_bad_guys = atoi(argv[2]);
+
+    //fourth arg is the number of trees to include
+    num_trees = atoi(argv[3]);
+
+    //fifth arg is the number of boxes the player is initially able to place
+    num_boxes_initial = atoi(argv[4]);
+
+  }
+  else
+  {
+    cout << "using defaults for the game parameters" << endl;
+
+    //set defaults for:
+      // num_good_guys
+      // num_bad_guys
+      // num_trees
+      // num_boxes_initial
+  }
+
+
+
+
+
+
   glewInit();
 
   init();
 
   // create_menu();
 
+  GLint textureCount;
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureCount);
+
+  cout << endl << " GL_MAX_TEXTURE_IMAGE_UNITS returned:" << textureCount << endl << endl;
 
 
   // glutGameModeString("640x480");   //not working, crashes shit - would be nice to get it working though
@@ -444,25 +471,21 @@ int main(int argc, char **argv)
   glutTimerFunc(1000.0/60.0, timer, 0);
   // glutReshapeFunc(reshape);
 
-  GLint textureCount;
-  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureCount);
-
-  cout << endl << " GL_MAX_TEXTURE_IMAGE_UNITS returned:" << textureCount << endl;
 
 
-  GLint data[3];
-
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,0, &data[0]);
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,1, &data[1]);
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,2, &data[2]);
-
-  cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_COUNT returned x:" << data[0] << " y:" << data[1] << " z:" << data[2] << endl;
-
-
-  GLint max;
-  glGetIntegerv(  GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max);
-
-  cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS returned:" << max << endl << endl;
+  // GLint data[3];
+  //
+  // glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,0, &data[0]);
+  // glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,1, &data[1]);
+  // glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,2, &data[2]);
+  //
+  // cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_COUNT returned x:" << data[0] << " y:" << data[1] << " z:" << data[2] << endl;
+  //
+  //
+  // GLint max;
+  // glGetIntegerv(  GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max);
+  //
+  // cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS returned:" << max << endl << endl;
 
 
 
@@ -477,17 +500,17 @@ int main(int argc, char **argv)
 
   //checking extensions
 
-  cout << "list of extensions: " << endl;
-
-  GLint n=0;
-  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-
-  for (GLint i=0; i<n; i++)
-  {
-    const char* extension =
-      (const char*)glGetStringi(GL_EXTENSIONS, i);
-    printf("      Ext %d: %s\n", i, extension);
-  }
+    // cout << "list of extensions: " << endl;
+    //
+    // GLint n=0;
+    // glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+    //
+    // for (GLint i=0; i<n; i++)
+    // {
+    //   const char* extension =
+    //     (const char*)glGetStringi(GL_EXTENSIONS, i);
+    //   printf("      Ext %d: %s\n", i, extension);
+    // }
 
 
 
