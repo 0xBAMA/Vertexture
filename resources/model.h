@@ -635,6 +635,15 @@ void GroundModel::display(bool select)
 
 class DudesAndTreesModel
 {
+
+  typedef struct entity_t
+  {
+    glm::vec3 location; //really only using x,y
+    int type; //0 good, 1 bad, 2 tree, 3 box
+    bool dead;
+  }entity;
+
+
 public:
 
   DudesAndTreesModel();
@@ -661,7 +670,12 @@ private:
 
   GLuint shader_program;
 
-  int num_pts; //how many points?
+
+  std::vector<entity> entities;
+
+
+
+  int num_box_pts, num_tree_pts; //how many points?
 
 //VERTEX ATTRIB LOCATIONS
   GLuint vPosition;
@@ -719,6 +733,59 @@ DudesAndTreesModel::DudesAndTreesModel()
 
   //fill those vectors with geometry
   generate_points();
+
+
+
+
+
+
+
+//generate a list of entitites
+  entity temp;
+
+  temp.location = glm::vec3(0.0f,0.0f,0.0f);
+  temp.type = 0;
+  temp.dead = false;
+
+  entities.push_back(temp);
+
+  temp.location = glm::vec3(0.0f,0.1f,0.0f);
+  temp.type = 0;
+  temp.dead = false;
+
+  entities.push_back(temp);
+
+  temp.location = glm::vec3(0.0f,0.2f,0.0f);
+  temp.type = 1;
+  temp.dead = false;
+
+  entities.push_back(temp);
+
+  temp.location = glm::vec3(0.0f,0.3f,0.0f);
+  temp.type = 0;
+  temp.dead = false;
+
+  entities.push_back(temp);
+
+  temp.location = glm::vec3(0.1f,0.3f,0.0f);
+  temp.type = 2;
+  temp.dead = false;
+
+  entities.push_back(temp);
+
+  temp.location = glm::vec3(0.1f,0.2f,0.0f);
+  temp.type = 3;
+  temp.dead = false;
+
+  entities.push_back(temp);
+
+
+
+
+
+
+
+
 
 
 //SETTING UP GPU STUFF
@@ -780,6 +847,7 @@ DudesAndTreesModel::DudesAndTreesModel()
   point_sprite_position = glm::vec3(0.0,0.0,0.0);
   uPosition = glGetUniformLocation(shader_program, "offset");
   glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
+
 
 
   //THE TEXTURE
@@ -916,7 +984,79 @@ void DudesAndTreesModel::generate_points()
 
       points.push_back(glm::vec3(0.0,0.0,0.0));
 
-      num_pts = points.size();
+      //generate tree points
+
+      points.push_back(glm::vec3(0.0,0.0,0.02));
+      points.push_back(glm::vec3(0.0,0.0,0.05));
+      points.push_back(glm::vec3(0.0,0.0,0.10));
+
+      num_tree_pts = points.size();
+
+      cout << "num_tree_pts is " << num_tree_pts << endl;
+
+
+      //generate box points
+
+      glm::vec3 a,b,c,d,e,f,g,h;
+      float nx,ny,nz,px,py,pz;
+
+      nx = -0.05;
+      ny = -0.05;
+      nz = -0.0;
+      px =  0.05;
+      py =  0.05;
+      pz =  0.03;
+
+      a = glm::vec3(nx,py,pz);
+      // points.push_back(a);
+
+      b = glm::vec3(nx,ny,pz);
+      // points.push_back(b);
+
+      c = glm::vec3(px,py,pz);
+      // points.push_back(c);
+
+      d = glm::vec3(px,ny,pz);
+      // points.push_back(d);
+
+      e = glm::vec3(nx,py,nz);
+      // points.push_back(e);
+
+      f = glm::vec3(nx,ny,nz);
+      // points.push_back(f);
+
+      g = glm::vec3(px,py,nz);
+      // points.push_back(g);
+
+      h = glm::vec3(px,ny,nz);
+      // points.push_back(h);
+
+
+      // 	   e-------g    +y
+      // 	  /|      /|		 |
+      // 	 / |     / |     |___+x
+      // 	a-------c  |    /
+      // 	|  f----|--h   +z
+      // 	| /     | /
+      //  |/      |/
+      // 	b-------d
+
+
+      subd_square(a,b,c,d);
+      subd_square(a,e,b,f);
+      subd_square(a,e,c,g);
+      subd_square(e,g,f,h);
+      subd_square(g,h,c,d);
+      subd_square(b,f,d,h);
+
+      num_box_pts = points.size() - num_tree_pts;
+
+      cout << "num_box_pts is " << num_box_pts << endl;
+
+
+
+
+
 
 
 
@@ -940,38 +1080,33 @@ void DudesAndTreesModel::generate_points()
   // // cout << "num_pts is " << num_pts << endl;
 
 }
-//
-// void DudesAndTreesModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
-// {
-//   if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
-//   {//add points
-//     // triangle 1 ABC
-//     points.push_back(a);
-//     points.push_back(b);
-//     points.push_back(c);
-//     //triangle 2 BCD
-//     points.push_back(b);
-//     points.push_back(c);
-//     points.push_back(d);
-//
-//     //middle
-//     // points.push_back((a+b+c+d)/4.0f);
-//   }
-//   else
-//   { //recurse
-//     glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
-//
-//     glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
-//     glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
-//     glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
-//     glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
-//
-//     subd_square(abmidp, b, center, bdmidp);
-//     subd_square(a, abmidp, acmidp, center);
-//     subd_square(center, bdmidp, cdmidp, d);
-//     subd_square(acmidp, center, c, cdmidp);
-//   }
-// }
+
+void DudesAndTreesModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
+{
+  if(glm::distance(a, b) < 0.02)
+  {//add points
+    points.push_back(a);
+    points.push_back(b);
+    points.push_back(c);
+    points.push_back(d);
+
+    points.push_back((a+b+c+d)/4.0f);
+  }
+  else
+  { //recurse
+    glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
+
+    glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
+    glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
+    glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
+    glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
+
+    subd_square(abmidp, b, center, bdmidp);
+    subd_square(a, abmidp, acmidp, center);
+    subd_square(center, bdmidp, cdmidp, d);
+    subd_square(acmidp, center, c, cdmidp);
+  }
+}
 
 
   //****************************************************************************
@@ -1004,17 +1139,71 @@ void DudesAndTreesModel::display()
 
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-  glPointSize(20.0);
+
+  for(auto x: entities)
+  {
+    if(x.type == 0 or x.type == 1)
+    {//good guy or bad guy
+
+      glPointSize(20.0);
+
+      //set the color, 0 is good, they are blue, 1 is bad, they are red
+      if(!x.dead)
+      {
+        if(!x.type)
+          glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0,0,1)));
+        else
+          glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(1,0,0)));
+      }
+      else
+      {//black if dead
+        glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0,0,0)));
+      }
+
+      glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
+
+      glDrawArrays(GL_POINTS, 0, 1);  //draw the point
+
+    }
+    else if(x.type == 2)
+    {//drawing a tree
+
+      glPointSize(5.0); //small points for the more detailed models
+
+      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.5,0.8,0)));
+      glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
+
+      glDrawArrays(GL_POINTS, 0, num_tree_pts);  //draw the tree
+
+
+    }
+    else if(x.type == 3)
+    {//drawing a box
+
+      glPointSize(5.0);
+
+      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.6,0.4,0)));
+      glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
+
+      glDrawArrays(GL_POINTS, num_tree_pts, num_box_pts);  //draw the tree
+
+    }
+    else
+    {//shouldn't get here
+
+    }
+
+
+  }
 
 
 
+  glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
+  glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
 
+  glPointSize(25.0);
+  glDrawArrays(GL_POINTS, 0, 1);  //draw the point
 
-    glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
-    glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
-
-    //draw a point
-    glDrawArrays(GL_POINTS, 0, num_pts);
 
 }
 
@@ -1090,9 +1279,6 @@ public:
   void scale_up()               {scale *= 1.618f;}
   void scale_down()             {scale /= 1.618f;}
 
-  void increase_thresh()        {thresh += 0.01; cout << thresh << endl;}
-  void decrease_thresh()        {thresh -= 0.01; cout << thresh << endl;}
-
 
 private:
   GLuint vao;
@@ -1116,7 +1302,6 @@ private:
 //UNIFORM LOCATIONS
   GLuint uTime;   //animation time
   GLuint uProj;   //projection matrix
-  GLuint uThresh;   //cutoff for water
 
   GLuint uScroll;
   GLuint uScale;
@@ -1124,7 +1309,7 @@ private:
 
 //VALUES OF THOSE UNIFORMS
   int time, scroll;
-  float thresh, scale;
+  float scale;
   glm::mat4 proj;
 
   void generate_points();
@@ -1198,9 +1383,6 @@ WaterModel::WaterModel()
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
 
-  thresh = 0.56f;
-  uThresh = glGetUniformLocation(shader_program, "thresh");
-  glUniform1f(uThresh, thresh);
 
 
 
@@ -1450,7 +1632,6 @@ void WaterModel::display()
 
   glUniform1i(uTime, time);
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
-  glUniform1f(uThresh, thresh);
   glUniform1f(uScale, scale);
   glUniform1i(uScroll, scroll);
 
