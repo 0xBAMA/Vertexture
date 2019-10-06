@@ -744,13 +744,57 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
 
 
 // //generate a list of entitites
-//   entity temp;
 //
-//   temp.location = glm::vec3(0.0f,0.0f,0.0f);
-//   temp.type = 0;
-//   temp.dead = false;
+
 //
-//   entities.push_back(temp);
+
+
+
+
+
+
+//POPULATE THE LIST OF ENTITIES
+entity temp;
+
+//generate good guys starting locations
+  for (int gg = 0; gg < num_good_guys; gg++)
+  {
+    //generate a good guy
+    temp.location = glm::vec3(0.0f,0.0f,0.0f); //change to random location
+    temp.type = 0;
+    temp.dead = false;
+
+    //entities.push_back(your good guy);
+    entities.push_back(temp);
+  }
+
+
+//generate bad guys starting locations
+  for (int bg = 0; bg < num_bad_guys; bg++)
+  {
+    //generate a bad guy
+    temp.location = glm::vec3(0.0f,0.0f,0.0f); //change to random location
+    temp.type = 1;
+    temp.dead = false;
+
+    //entities.push_back(your bad guy);
+    entities.push_back(temp);
+  }
+
+
+//generate tree locations
+  for (int tc = 0; tc < num_trees; tc++)
+  {
+    //generate a tree
+    temp.location = glm::vec3(0.0f,0.0f,0.0f); //change to random location
+    temp.type = 2;
+
+    //entities.push_back(your tree);
+    entities.push_back(temp);
+  }
+
+
+//boxes aren't placed yet
 
 
 
