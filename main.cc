@@ -433,13 +433,14 @@ int main(int argc, char **argv)
   }
   else
   {
+    cout << "Incorrect command line args" << endl;
     cout << "using defaults for the game parameters" << endl;
 
     //set defaults for:
-      // num_good_guys
-      // num_bad_guys
-      // num_trees
-      // num_boxes_initial
+      num_good_guys = 3;
+      num_bad_guys = 3;
+      num_trees = 3;
+      num_boxes_initial = 3;
   }
 
 

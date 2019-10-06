@@ -82,7 +82,7 @@ void main()
 
   color.r *= 0.4;
   color.g *= 0.5;
-  color.b *= 0.7;
+  color.b *= 0.4;
 
 
 }
