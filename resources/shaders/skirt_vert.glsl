@@ -67,7 +67,7 @@ void main()
   // float height_offset = 0.2 * (color.z - 0.5);
 
 
-  vpos = vPosition_local - vec4(0,0,0.005,0);
+  vpos = vPosition_local;
 
   gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
 

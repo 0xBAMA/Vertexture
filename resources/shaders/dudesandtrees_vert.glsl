@@ -11,6 +11,8 @@ uniform int scroll;
 uniform float scale;
 uniform mat4 proj;
 
+uniform int bounce;
+
 uniform vec3 ucolor;
 uniform vec3 offset;
 
@@ -41,49 +43,10 @@ void main()
 
 
 
-  vec4 trefh;
+  vec4 trefh = texture(rock_height_tex,  (0.5 * offset.xy));// + timeoffset);
 
-  switch(scroll)
-  {
-    case 0:
-      trefh = texture(rock_height_tex, scale * (0.25 * offset.xy));// + timeoffset);
-      break;
-    case 1:
-      trefh = texture(rock_height_tex, scale * (0.2 * offset.xy + vec2(t/1000.0) + 0.15 * offset.xy + vec2(t/7000.0)));
-      break;
-    case 2:
-      trefh = texture(rock_height_tex, scale * ( 0.2 * offset.xy + vec2(t/7000.0) + 0.15 * offset.xy + vec2(t/7000.0)));
-      break;
-    default:
-      trefh = vec4(1.0, 0.0, 0.0, 1.0);
-      break;
-  }
+  vec4 trefn = texture(rock_normal_tex, (0.5 * offset.xy));
 
-
-  //trefh tells the height of the ground under the dude
-
-
-
-
-  vec4 trefn;
-
-  switch(scroll)
-  {
-    case 0:
-      trefn = texture(rock_normal_tex, scale * (0.25 * offset.xy));
-      break;
-    case 1:
-      trefn = texture(rock_normal_tex, scale * (0.2 * offset.xy + vec2(t/1000.0) + 0.15 * offset.xy + vec2(t/7000.0)));
-      break;
-    case 2:
-      trefn = texture(rock_normal_tex, scale * ( 0.2 * offset.xy + vec2(t/7000.0) + 0.15 * offset.xy + vec2(t/7000.0)));
-      break;
-    default:
-      trefn = vec4(1.0, 0.0, 0.0, 1.0);
-      break;
-  }
-
-  // color = vec4(0.3*dot(trefh, trefn));
   norm = trefn;
   // color = vec4(0.2,0.6,0.2,1.0);
   color = vec4(ucolor,1.0);
@@ -112,9 +75,13 @@ void main()
 
 
   float height_scale = 1.5*clamp(0.3 * (trefh.z - 0.5),0,1) + 0.05;
+  vec4 texture_height_offset;
 
+  if(bounce == 1)
+    texture_height_offset = 0.6 * vec4(0,0,height_scale,0) + vec4(0,0,trefn.x * 0.005 * (sin(0.05 * t) - 0.7),0.0) + vec4(0,0,trefh.x * 0.005 * (sin(0.05 * t) - 0.7),0.0);
+  else
+    texture_height_offset = 0.6 * vec4(0,0,height_scale,0);
 
-  vec4 texture_height_offset = vec4(0,0,height_scale,0) + vec4(0,0,0,0);
 
   vec4 vPosition_local = vec4(0.5*vPosition.xy, vPosition.z, 1.0f) + texture_height_offset + vec4(offset.xy,0,0);
 

@@ -648,13 +648,20 @@ public:
 
   DudesAndTreesModel(int num_good_guys, int num_bad_guys, int num_trees, int num_boxes_initial);
 
+
   void display();
+
+  void update_sim();  //called from timer function
+
+  void handle_click(glm::vec3 pixel_read);  //called from mouse callback
 
   void set_time(int tin)        {time = tin;}
   void set_scroll(int sin)      {scroll = sin;}
   void scale_up()               {scale *= 1.618f;}
   void scale_down()             {scale /= 1.618f;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
+
+  void toggle_cursor_draw()     {cursor_draw = !cursor_draw;}
 
   void set_pos(glm::vec3 pin, glm::vec3 cin)   {point_sprite_position = pin; point_sprite_color = cin;}
 
@@ -689,8 +696,7 @@ private:
   GLuint uScale;
   GLuint uColor;
   GLuint uPosition;
-
-
+  GLuint uBounce;
 
 
   GLuint uHeightSampler;  //textures
@@ -700,7 +706,7 @@ private:
 
 
 //VALUES OF THOSE UNIFORMS
-  int time;
+  int time, bounce;
   int scroll;
   float scale;
 
@@ -715,6 +721,8 @@ private:
   std::vector<glm::vec3> points;    //add the 1.0 w value in the shader
   // std::vector<glm::vec3> normals;
   // std::vector<glm::vec3> colors;
+
+  bool cursor_draw;
 };
 
   //****************************************************************************
@@ -728,6 +736,8 @@ private:
 DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int num_trees, int num_boxes_initial)
 {
 
+  cursor_draw = false;
+
   //initialize all the vectors
   points.clear();
 
@@ -736,9 +746,9 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
 
 
   cout << " Parameters of the game are as follows:" << endl;
-  cout << "  " << num_good_guys << " good guys" << endl;
-  cout << "  " << num_bad_guys << " bad guys" << endl;
-  cout << "  " << num_trees << " tree" << endl;
+  cout << "  " << num_good_guys << " good guys,";
+  cout << "  " << num_bad_guys << " bad guys,";
+  cout << "  " << num_trees << " tree(s),";
   cout << "  " << num_boxes_initial << " boxes" << endl << endl;
 
 
@@ -747,6 +757,16 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
 //
 
 //
+
+//random number generation
+  std::random_device rd;
+  std::mt19937 mt(rd());
+  // std::uniform_real_distribution<float> dist(-1.618f, 1.618f);
+  // std::uniform_real_distribution<float> dist(-0.618f, 0.618f);
+  std::uniform_real_distribution<float> dist(-0.8f, 0.8f);
+  //example usage for random number generation:
+  // for (int i=0; i<16; ++i)
+  //         std::cout << dist(mt) << "\n";
 
 
 
@@ -760,7 +780,7 @@ entity temp;
   for (int gg = 0; gg < num_good_guys; gg++)
   {
     //generate a good guy
-    temp.location = glm::vec3(0.0f,0.0f,0.0f); //change to random location
+    temp.location = glm::vec3(dist(mt),dist(mt),dist(mt)); //change to random location
     temp.type = 0;
     temp.dead = false;
 
@@ -773,7 +793,7 @@ entity temp;
   for (int bg = 0; bg < num_bad_guys; bg++)
   {
     //generate a bad guy
-    temp.location = glm::vec3(0.0f,0.0f,0.0f); //change to random location
+    temp.location = glm::vec3(dist(mt),dist(mt),dist(mt)); //change to random location
     temp.type = 1;
     temp.dead = false;
 
@@ -786,7 +806,7 @@ entity temp;
   for (int tc = 0; tc < num_trees; tc++)
   {
     //generate a tree
-    temp.location = glm::vec3(0.0f,0.0f,0.0f); //change to random location
+    temp.location = glm::vec3(dist(mt),dist(mt),dist(mt)); //change to random location
     temp.type = 2;
 
     //entities.push_back(your tree);
@@ -845,6 +865,9 @@ entity temp;
   //UNIFORMS
   uTime = glGetUniformLocation(shader_program, "t");
   glUniform1i(uTime, time);
+
+  uBounce = glGetUniformLocation(shader_program, "bounce");
+  glUniform1i(uBounce, bounce);
 
   uScroll = glGetUniformLocation(shader_program, "scroll");
   glUniform1i(uScroll, scroll);
@@ -1163,7 +1186,10 @@ void DudesAndTreesModel::display()
     if(x.type == 0 or x.type == 1)
     {//good guy or bad guy
 
-      glPointSize(20.0);
+      glPointSize(14.0);
+      bounce = 1;
+      glUniform1i(uBounce, bounce);
+
 
       //set the color, 0 is good, they are blue, 1 is bad, they are red
       if(!x.dead)
@@ -1186,7 +1212,10 @@ void DudesAndTreesModel::display()
     else if(x.type == 2)
     {//drawing a tree
 
-      glPointSize(5.0); //small points for the more detailed models
+      bounce = 0;
+      glUniform1i(uBounce, bounce);
+
+      glPointSize(15.0); //small points for the more detailed models
 
       glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.5,0.8,0)));
       glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
@@ -1198,7 +1227,10 @@ void DudesAndTreesModel::display()
     else if(x.type == 3)
     {//drawing a box
 
-      glPointSize(5.0);
+      bounce = 0;
+      glUniform1i(uBounce, bounce);
+
+      glPointSize(15.0);
 
       glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.6,0.4,0)));
       glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
@@ -1214,16 +1246,92 @@ void DudesAndTreesModel::display()
 
   }
 
+  if(cursor_draw)
+  {
+    glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
+    glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
 
-
-  glUniform3fv(uColor, 1, glm::value_ptr(point_sprite_color));
-  glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
-
-  glPointSize(25.0);
-  glDrawArrays(GL_POINTS, 0, 1);  //draw the point
+    glPointSize(25.0);
+    glDrawArrays(GL_POINTS, 0, 1);  //draw the point
+  }
 
 
 }
+
+
+void DudesAndTreesModel::update_sim()  //called from timer function
+{
+  glm::vec3 closest_box_loc = glm::vec3(0,0,0);
+  float closest_box_distance = 99999.0;
+  float box_capture_threshold = 0.01;
+  float tree_hit_threshold = 0.01;
+
+  for (auto x : entities)
+  {//for all the entities
+    if(x.type == 0 || x.type == 1)
+    {//good guy or bad guy
+      for(auto x2 : entities)
+      {//look for a box
+        if(x2.type == 4)
+        { //we hit a box
+          if (glm::distance(x2.location,x.location) < closest_box_distance)
+          {//is this box closer than the last encountered?
+            closest_box_loc = x2.location;
+
+          }//end distance update check
+        }//end if it's a box
+      }//end for entities, looking for box
+
+      if(closest_box_distance < 99999.0)
+      {
+        if(closest_box_distance < box_capture_threshold)
+        {
+          //logic to capture a box
+          if(!x.type)
+          { //good guys
+            //score point
+          }
+          else
+          { //bad guys
+            //don't score point
+          }
+          //remove that box from the running
+        }
+        else
+        {
+          //move towards the closest box
+        }
+      }
+      else
+      {//no boxes found in the list
+        //move some random amount
+      }
+
+      glm::vec3 closest_tree_loc;
+      float closest_tree_distance;
+
+      for(auto x3 : entities)
+      {
+        if(x3.type == 3)  //a tree
+        {
+          if(glm::distance(x3.location, x.location) < tree_hit_threshold)
+          {
+            // update minimum distance
+          }
+        }
+      }
+
+    }//end good guy/bad guy
+    //trees and boxes don't need to be updated
+  }
+
+}
+
+void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse callback
+{
+
+}
+
 
 
 
@@ -1902,7 +2010,7 @@ SkirtModel::SkirtModel()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2048, 2048, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -2329,7 +2437,7 @@ void CloudModel::generate_points()
 
 void CloudModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
 {
-  if(glm::distance(a, b) < MIN_POINT_PLACEMENT_THRESHOLD)
+  if(glm::distance(a, b) < 1)
   {//add points
     //triangle 1 ABC
 

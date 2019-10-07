@@ -34,7 +34,7 @@ main()
     }
 
 
-    if((vpos.z > -0.005 + height_offset) && vpos.z > 0.0) discard;   //throw away everything above the water
+    if((vpos.z >  height_offset) && vpos.z > 0.0) discard;   //throw away everything above the water
 
     if(gl_FragColor == vec4(0.1, 0.2, 0.4, 0.3))
     {
