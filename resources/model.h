@@ -682,7 +682,7 @@ private:
 
 
 
-  int num_box_pts, num_tree_pts; //how many points?
+  int num_box_pts, num_tree_pts, num_treetop_pts, box_start, boxes_left; //how many points?
 
 //VERTEX ATTRIB LOCATIONS
   GLuint vPosition;
@@ -752,6 +752,9 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
   cout << "  " << num_boxes_initial << " boxes" << endl << endl;
 
 
+  boxes_left = num_boxes_initial;
+
+
 
 // //generate a list of entitites
 //
@@ -778,7 +781,7 @@ entity temp;
   for (int gg = 0; gg < num_good_guys; gg++)
   {
     //generate a good guy
-    temp.location = glm::vec3(dist(mt),dist(mt),dist(mt)); //change to random location
+    temp.location = glm::vec3(dist(mt),dist(mt),0); //change to random location
     temp.type = 0;
     temp.dead = false;
 
@@ -791,7 +794,7 @@ entity temp;
   for (int bg = 0; bg < num_bad_guys; bg++)
   {
     //generate a bad guy
-    temp.location = glm::vec3(dist(mt),dist(mt),dist(mt)); //change to random location
+    temp.location = glm::vec3(dist(mt),dist(mt),0); //change to random location
     temp.type = 1;
     temp.dead = false;
 
@@ -804,7 +807,7 @@ entity temp;
   for (int tc = 0; tc < num_trees; tc++)
   {
     //generate a tree
-    temp.location = glm::vec3(dist(mt),dist(mt),dist(mt)); //change to random location
+    temp.location = glm::vec3(dist(mt),dist(mt),0); //change to random location
     temp.type = 2;
 
     //entities.push_back(your tree);
@@ -816,7 +819,16 @@ entity temp;
 
 
 
+for (int bx = 0; bx < num_boxes_initial; bx++)
+{
+  //generate a tree
+  temp.location = glm::vec3(0.9,0.8-bx*0.1,0); //change to random location
+  temp.type = 3;
+  temp.dead = true;
 
+  //entities.push_back(your tree);
+  entities.push_back(temp);
+}
 
 
 
@@ -1024,14 +1036,60 @@ void DudesAndTreesModel::generate_points()
       points.push_back(glm::vec3(0.0,0.0,0.0));
 
       //generate tree points
+      std::random_device rd;
+      std::mt19937 mt(rd());
+      std::uniform_real_distribution<float> dist0(-0.01f, 0.01f);
 
-      points.push_back(glm::vec3(0.0,0.0,0.02));
-      points.push_back(glm::vec3(0.0,0.0,0.05));
-      points.push_back(glm::vec3(0.0,0.0,0.10));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.01));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.02));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.03));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.04));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.05));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.06));
 
       num_tree_pts = points.size();
 
-      // cout << "num_tree_pts is " << num_tree_pts << endl;
+
+
+      std::uniform_real_distribution<float> dist1(-0.05f, 0.05f);
+
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),0.05));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),0.05));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),0.05));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),0.05));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),0.05));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),0.05));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),0.05));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),0.05));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),0.05));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),0.05));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),0.05));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),0.05));
+
+      std::uniform_real_distribution<float> dist2(-0.03f, 0.03f);
+
+      points.push_back(glm::vec3(dist2(mt),dist2(mt),0.065));
+      points.push_back(glm::vec3(dist2(mt),-dist2(mt),0.065));
+      points.push_back(glm::vec3(-dist2(mt),dist2(mt),0.065));
+      points.push_back(glm::vec3(-dist2(mt),-dist2(mt),0.065));
+      points.push_back(glm::vec3(dist2(mt),dist2(mt),0.065));
+      points.push_back(glm::vec3(dist2(mt),-dist2(mt),0.065));
+      points.push_back(glm::vec3(-dist2(mt),dist2(mt),0.065));
+      points.push_back(glm::vec3(-dist2(mt),-dist2(mt),0.065));
+      points.push_back(glm::vec3(dist2(mt),dist2(mt),0.065));
+      points.push_back(glm::vec3(dist2(mt),-dist2(mt),0.065));
+      points.push_back(glm::vec3(-dist2(mt),dist2(mt),0.065));
+      points.push_back(glm::vec3(-dist2(mt),-dist2(mt),0.065));
+
+
+
+
+
+      num_treetop_pts = points.size() - num_tree_pts;
+
+
+      box_start = points.size();
+
 
 
       //generate box points
@@ -1088,7 +1146,7 @@ void DudesAndTreesModel::generate_points()
       subd_square(g,h,c,d);
       subd_square(b,f,d,h);
 
-      num_box_pts = points.size() - num_tree_pts;
+      num_box_pts = points.size() - box_start;
 
       // cout << "num_box_pts is " << num_box_pts << endl;
 
@@ -1213,23 +1271,27 @@ void DudesAndTreesModel::display()
       bounce = 0;
       glUniform1i(uBounce, bounce);
 
-      glPointSize(15.0); //small points for the more detailed models
+      glPointSize(6.0); //small points for the more detailed models
 
-      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.5,0.8,0)));
+      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.5,0.2,0)));
       glDrawArrays(GL_POINTS, 0, num_tree_pts);  //draw the tree
+
+      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.3,0.4,0)));
+      glDrawArrays(GL_POINTS, num_tree_pts, num_treetop_pts);  //draw the treetops
+
 
     }
     else if(x.type == 3)
     {//drawing a box
 
-      bounce = 0;
+      bounce = 1;
       glUniform1i(uBounce, bounce);
 
-      glPointSize(15.0);
+      glPointSize(3.0);
 
       glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.6,0.4,0)));
 
-      glDrawArrays(GL_POINTS, num_tree_pts, num_box_pts);  //draw the tree
+      glDrawArrays(GL_POINTS, box_start, num_box_pts);  //draw the tree
 
     }
     else
@@ -1257,7 +1319,7 @@ void DudesAndTreesModel::update_sim()  //called from timer function
 {
   std::random_device rd;
   std::mt19937 mt(rd());
-  std::uniform_real_distribution<float> dist(-0.01f, 0.01f);
+  std::uniform_real_distribution<float> dist(-0.003f, 0.003f);
 
   glm::vec3 closest_box_loc = glm::vec3(0,0,0);
   float closest_box_distance = 99999.0;
@@ -1266,14 +1328,14 @@ void DudesAndTreesModel::update_sim()  //called from timer function
 
   for (auto &x : entities)
   { //for all the entities
-    if(x.type == 0 || x.type == 1)
+    if((x.type == 0 || x.type == 1) && !x.dead) //don't move dead guys
     {//good guy or bad guy
       for(auto &x2 : entities)
       {//look for a box
         if(x2.type == 4)
         { //we hit a box
           cout << "found a box" << endl;
-          if (glm::distance(x2.location,x.location) < closest_box_distance)
+          if (glm::distance(x2.location,x.location) < closest_box_distance && !x2.dead)   //don't consider 'dead' boxes
           {//is this box closer than the last encountered?
             closest_box_loc = x2.location;
 
@@ -1295,10 +1357,19 @@ void DudesAndTreesModel::update_sim()  //called from timer function
             //don't score point
           }
           //remove that box from the running
+          for(int i = 0; i < entities.size(); i++)
+          {
+            //if(location of nearest box equals location, and type is box,)
+            //{
+            //  mark as dead;
+            //}
+          }
         }
         else
         {
           //move towards the closest box
+            //0.02 times the normalized vector towards the nearest box
+            //plus 0.01 times the normalized vector generated by (dist(mt),dist(mt))
         }
       }
       else
@@ -1335,13 +1406,20 @@ void DudesAndTreesModel::update_sim()  //called from timer function
 
 void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse callback
 {
+
+  bool inthewater = false;
+  bool inatree = false;
+
   if(pixel_read == glm::vec3(0,0,0))
   {//black pixel, off the board
+    cout << "off the board" << endl;
     return;
   }
 
   if(pixel_read.b > 0)
   {//clicked in the water
+    cout << "you dropped it in the water" << endl;
+    inthewater = true;
     return;
   }
 
@@ -1350,6 +1428,7 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
     if(x.type == 3)
     {
       //take tree-to-click distance, tell user if it's too close to a tree, then return
+      inatree=true;
     }
   }
 
@@ -1357,16 +1436,16 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
 
   for(auto x : entities)
   {
-    if(x.type == 0 || x.type == 1)
+    if((x.type == 0 || x.type == 1) && !x.dead)
     {
-      //check distance to good guy/bad guys, kill any that are too close, but do not return
+      //check distance to living good guy/bad guys, kill any that are too close, but do not return, because you still place a box there
     }
   }
 
-  //spawn a box at the location indicated by the click, if you haven't returned yet
-  entity box;
-  //set parameters
-  // entities.push_back(box);
+  // find the box farthest away from vec3(0.9,0.8,0.0) - the "next" box
+  // move that box to the point indicated by the click
+  // mark that box as live (!dead), unless inthewater or inatree, because then yo
+
 }
 
 
