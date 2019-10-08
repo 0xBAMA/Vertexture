@@ -1308,7 +1308,7 @@ void DudesAndTreesModel::update_sim()  //called from timer function
       }
 
       glm::vec3 closest_tree_loc;
-      float closest_tree_distance;
+      float closest_tree_distance = 99999.0;
 
       for(auto x3 : entities)
       {
@@ -1316,20 +1316,51 @@ void DudesAndTreesModel::update_sim()  //called from timer function
         {
           if(glm::distance(x3.location, x.location) < tree_hit_threshold)
           {
-            // update minimum distance
+            // you're close enough, move away, along the vector from that tree to the dude
           }
         }
       }
-
     }//end good guy/bad guy
     //trees and boxes don't need to be updated
+    if(x.location.x > 1.618 || x.location.x < -1.618 || x.location.y > 1.618 || x.location.y < -1.618)
+    {
+      //set it back at 0,0
+    }
   }
 
 }
 
 void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse callback
 {
+  if(pixel_read == glm::vec3(0,0,0))
+  {//black pixel, off the board
+    return;
+  }
 
+  if(pixel_read.b > 0)
+  {//clicked in the water
+    return;
+  }
+
+  for(auto x : entities)
+  {
+    if(x.type == 3)
+    {
+      //take tree-to-click distance, tell user if it's too close to a tree, then return
+    }
+  }
+
+  //if you haven't returned yet, you're dealing with a valid click
+
+  for(auto x : entities)
+  {
+    if(x.type == 0 || x.type == 1)
+    {
+      //check distance to good guy/bad guys, kill any that are too close, but do not return
+    }
+  }
+
+  //spawn a box at the location indicated by the click, if you haven't returned yet
 }
 
 
