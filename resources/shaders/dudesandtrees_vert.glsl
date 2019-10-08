@@ -81,6 +81,7 @@ void main()
     texture_height_offset = 0.6 * vec4(0,0,height_scale,0) + vec4(0,0,trefn.x * 0.005 * (sin(0.05 * t) - 0.7),0.0) + vec4(0,0,trefh.x * 0.005 * (sin(0.05 * t) - 0.7),0.0);
   else
     texture_height_offset = 0.6 * vec4(0,0,height_scale,0);
+    // texture_height_offset = 0.6 * height_scale * vec4(trefn.xyz,0);
 
 
   vec4 vPosition_local = vec4(0.5*vPosition.xy, vPosition.z, 1.0f) + texture_height_offset + vec4(offset.xy,0,0);
