@@ -761,8 +761,6 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
 //random number generation
   std::random_device rd;
   std::mt19937 mt(rd());
-  // std::uniform_real_distribution<float> dist(-1.618f, 1.618f);
-  // std::uniform_real_distribution<float> dist(-0.618f, 0.618f);
   std::uniform_real_distribution<float> dist(-0.8f, 0.8f);
   //example usage for random number generation:
   // for (int i=0; i<16; ++i)
@@ -1183,6 +1181,8 @@ void DudesAndTreesModel::display()
 
   for(auto x: entities)
   {
+    glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
+
     if(x.type == 0 or x.type == 1)
     {//good guy or bad guy
 
@@ -1204,8 +1204,6 @@ void DudesAndTreesModel::display()
         glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0,0,0)));
       }
 
-      glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
-
       glDrawArrays(GL_POINTS, 0, 1);  //draw the point
 
     }
@@ -1218,10 +1216,7 @@ void DudesAndTreesModel::display()
       glPointSize(15.0); //small points for the more detailed models
 
       glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.5,0.8,0)));
-      glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
-
       glDrawArrays(GL_POINTS, 0, num_tree_pts);  //draw the tree
-
 
     }
     else if(x.type == 3)
@@ -1233,7 +1228,6 @@ void DudesAndTreesModel::display()
       glPointSize(15.0);
 
       glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.6,0.4,0)));
-      glUniform3fv(uPosition, 1, glm::value_ptr(x.location));
 
       glDrawArrays(GL_POINTS, num_tree_pts, num_box_pts);  //draw the tree
 
@@ -1261,19 +1255,24 @@ void DudesAndTreesModel::display()
 
 void DudesAndTreesModel::update_sim()  //called from timer function
 {
+  std::random_device rd;
+  std::mt19937 mt(rd());
+  std::uniform_real_distribution<float> dist(-0.01f, 0.01f);
+
   glm::vec3 closest_box_loc = glm::vec3(0,0,0);
   float closest_box_distance = 99999.0;
   float box_capture_threshold = 0.01;
   float tree_hit_threshold = 0.01;
 
-  for (auto x : entities)
-  {//for all the entities
+  for (auto &x : entities)
+  { //for all the entities
     if(x.type == 0 || x.type == 1)
     {//good guy or bad guy
-      for(auto x2 : entities)
+      for(auto &x2 : entities)
       {//look for a box
         if(x2.type == 4)
         { //we hit a box
+          cout << "found a box" << endl;
           if (glm::distance(x2.location,x.location) < closest_box_distance)
           {//is this box closer than the last encountered?
             closest_box_loc = x2.location;
@@ -1305,14 +1304,17 @@ void DudesAndTreesModel::update_sim()  //called from timer function
       else
       {//no boxes found in the list
         //move some random amount
+        float xmove = dist(mt);
+        float ymove = dist(mt);
+        x.location = glm::vec3(x.location.x + xmove, x.location.y + ymove, x.location.z);
       }
 
       glm::vec3 closest_tree_loc;
       float closest_tree_distance = 99999.0;
 
-      for(auto x3 : entities)
+      for(auto &x3 : entities)
       {
-        if(x3.type == 3)  //a tree
+        if(x3.type == 2)  //a tree
         {
           if(glm::distance(x3.location, x.location) < tree_hit_threshold)
           {
@@ -1320,14 +1322,15 @@ void DudesAndTreesModel::update_sim()  //called from timer function
           }
         }
       }
+
+      if(x.location.x > 0.8 || x.location.x < -0.8 || x.location.y > 0.8 || x.location.y < -0.8)
+      {
+        //set it back at 0,0
+        x.location = glm::vec3(0,0,0);
+      }
     }//end good guy/bad guy
     //trees and boxes don't need to be updated
-    if(x.location.x > 1.618 || x.location.x < -1.618 || x.location.y > 1.618 || x.location.y < -1.618)
-    {
-      //set it back at 0,0
-    }
-  }
-
+  }//end for entities
 }
 
 void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse callback
@@ -1361,6 +1364,9 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
   }
 
   //spawn a box at the location indicated by the click, if you haven't returned yet
+  entity box;
+  //set parameters
+  // entities.push_back(box);
 }
 
 

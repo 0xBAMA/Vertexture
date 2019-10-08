@@ -351,6 +351,7 @@ void mouse( int button, int state, int x, int y )
 
 void timer(int)
 {
+  datmodel->update_sim();
 	glutPostRedisplay();
 	glutTimerFunc(1000.0/60.0, timer, 0);
 }
