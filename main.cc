@@ -349,9 +349,9 @@ void mouse( int button, int state, int x, int y )
 
 
     }
+    cout << endl << "Your current score is " << datmodel->get_score() << endl;
   }
 
-  cout << endl << "Your current score is " << datmodel->get_score() << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -359,6 +359,12 @@ void mouse( int button, int state, int x, int y )
 void timer(int)
 {
   datmodel->update_sim();
+
+  if(datmodel->get_boxes_left() == 0 && !datmodel->get_status())
+  {
+    cout << endl << endl << "GAME OVER" << endl << "with score = " << datmodel->get_score() << endl << endl;
+    exit(EXIT_SUCCESS);
+  }
 	glutPostRedisplay();
 	glutTimerFunc(1000.0/60.0, timer, 0);
 }
