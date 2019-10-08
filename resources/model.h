@@ -661,6 +661,8 @@ public:
   void scale_down()             {scale /= 1.618f;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
 
+  int get_score()               {return score;}
+
   void toggle_cursor_draw()     {cursor_draw = !cursor_draw;}
 
   void set_pos(glm::vec3 pin, glm::vec3 cin)   {point_sprite_position = pin; point_sprite_color = cin;}
@@ -682,7 +684,7 @@ private:
 
 
 
-  int num_box_pts, num_tree_pts, num_treetop_pts, box_start, boxes_left; //how many points?
+  int num_box_pts, num_tree_pts, num_treetop_pts, box_start, boxes_left, score; //how many points?
 
 //VERTEX ATTRIB LOCATIONS
   GLuint vPosition;
@@ -753,6 +755,7 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
 
 
   boxes_left = num_boxes_initial;
+  score = 0;
 
 
 
@@ -824,6 +827,7 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
   //generate a tree
   temp.location = glm::vec3(0.9,0.8-bx*0.1,0); //change to random location
   temp.type = 3;
+  // temp.dead = bx % 2;
   temp.dead = true;
 
   //entities.push_back(your tree);
@@ -1038,7 +1042,28 @@ void DudesAndTreesModel::generate_points()
       //generate tree points
       std::random_device rd;
       std::mt19937 mt(rd());
-      std::uniform_real_distribution<float> dist0(-0.01f, 0.01f);
+      std::uniform_real_distribution<float> dist0(-0.018f, 0.015f);
+
+      points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.01));
+      points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.02));
+      points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.03));
+      points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.04));
+      points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.05));
+      points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.06));
+
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.01));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.02));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.03));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.04));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.05));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.06));
+
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.01));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.02));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.03));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.04));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.05));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.06));
 
       points.push_back(glm::vec3(dist0(mt),dist0(mt),0.01));
       points.push_back(glm::vec3(dist0(mt),dist0(mt),0.02));
@@ -1047,41 +1072,79 @@ void DudesAndTreesModel::generate_points()
       points.push_back(glm::vec3(dist0(mt),dist0(mt),0.05));
       points.push_back(glm::vec3(dist0(mt),dist0(mt),0.06));
 
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.01));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.02));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.03));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.04));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.05));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.06));
+
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.01));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.02));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.03));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.04));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.05));
+      points.push_back(glm::vec3(dist0(mt),dist0(mt),0.06));
+
+
       num_tree_pts = points.size();
 
 
 
-      std::uniform_real_distribution<float> dist1(-0.05f, 0.05f);
+      std::uniform_real_distribution<float> dist1(-0.14f, 0.12f);
+      std::uniform_real_distribution<float> dist2(0.05f, 0.08f);
 
-      points.push_back(glm::vec3(dist1(mt),dist1(mt),0.05));
-      points.push_back(glm::vec3(dist1(mt),-dist1(mt),0.05));
-      points.push_back(glm::vec3(-dist1(mt),dist1(mt),0.05));
-      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),0.05));
-      points.push_back(glm::vec3(dist1(mt),dist1(mt),0.05));
-      points.push_back(glm::vec3(dist1(mt),-dist1(mt),0.05));
-      points.push_back(glm::vec3(-dist1(mt),dist1(mt),0.05));
-      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),0.05));
-      points.push_back(glm::vec3(dist1(mt),dist1(mt),0.05));
-      points.push_back(glm::vec3(dist1(mt),-dist1(mt),0.05));
-      points.push_back(glm::vec3(-dist1(mt),dist1(mt),0.05));
-      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),0.05));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
 
-      std::uniform_real_distribution<float> dist2(-0.03f, 0.03f);
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
 
-      points.push_back(glm::vec3(dist2(mt),dist2(mt),0.065));
-      points.push_back(glm::vec3(dist2(mt),-dist2(mt),0.065));
-      points.push_back(glm::vec3(-dist2(mt),dist2(mt),0.065));
-      points.push_back(glm::vec3(-dist2(mt),-dist2(mt),0.065));
-      points.push_back(glm::vec3(dist2(mt),dist2(mt),0.065));
-      points.push_back(glm::vec3(dist2(mt),-dist2(mt),0.065));
-      points.push_back(glm::vec3(-dist2(mt),dist2(mt),0.065));
-      points.push_back(glm::vec3(-dist2(mt),-dist2(mt),0.065));
-      points.push_back(glm::vec3(dist2(mt),dist2(mt),0.065));
-      points.push_back(glm::vec3(dist2(mt),-dist2(mt),0.065));
-      points.push_back(glm::vec3(-dist2(mt),dist2(mt),0.065));
-      points.push_back(glm::vec3(-dist2(mt),-dist2(mt),0.065));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
 
-
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+      points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
 
 
 
@@ -1271,10 +1334,12 @@ void DudesAndTreesModel::display()
       bounce = 0;
       glUniform1i(uBounce, bounce);
 
-      glPointSize(6.0); //small points for the more detailed models
+      glPointSize(8.0); //small points for the more detailed models
 
       glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.5,0.2,0)));
       glDrawArrays(GL_POINTS, 0, num_tree_pts);  //draw the tree
+
+      glPointSize(16.0);
 
       glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.3,0.4,0)));
       glDrawArrays(GL_POINTS, num_tree_pts, num_treetop_pts);  //draw the treetops
@@ -1289,7 +1354,10 @@ void DudesAndTreesModel::display()
 
       glPointSize(3.0);
 
-      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.6,0.4,0)));
+      if(!x.dead)
+      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.9,0.6,0)));
+      else
+      glUniform3fv(uColor, 1, glm::value_ptr(glm::vec3(0.7,0.4,0)));
 
       glDrawArrays(GL_POINTS, box_start, num_box_pts);  //draw the tree
 
@@ -1332,12 +1400,13 @@ void DudesAndTreesModel::update_sim()  //called from timer function
     {//good guy or bad guy
       for(auto &x2 : entities)
       {//look for a box
-        if(x2.type == 4)
-        { //we hit a box
+        if(x2.type == 4 && !x2.dead)
+        { //we hit a box, that's live, i.e. don't consider 'dead' boxes
           cout << "found a box" << endl;
-          if (glm::distance(x2.location,x.location) < closest_box_distance && !x2.dead)   //don't consider 'dead' boxes
+          if (glm::distance(x2.location,x.location) < closest_box_distance)
           {//is this box closer than the last encountered?
             closest_box_loc = x2.location;
+            closest_box_distance = glm::distance(x2.location,x.location);
 
           }//end distance update check
         }//end if it's a box
@@ -1351,10 +1420,13 @@ void DudesAndTreesModel::update_sim()  //called from timer function
           if(!x.type)
           { //good guys
             //score point
+            cout << "good guys captured a box" << endl;
+            score++;
           }
           else
           { //bad guys
             //don't score point
+            cout << "bad guys captured a box" << endl;
           }
           //remove that box from the running
           for(int i = 0; i < entities.size(); i++)
@@ -1410,9 +1482,12 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
   bool inthewater = false;
   bool inatree = false;
 
+  // glm::vec3 click_location;
+
   if(pixel_read == glm::vec3(0,0,0))
   {//black pixel, off the board
     cout << "off the board" << endl;
+    //no decrement
     return;
   }
 
@@ -1420,31 +1495,69 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
   {//clicked in the water
     cout << "you dropped it in the water" << endl;
     inthewater = true;
-    return;
   }
 
   for(auto x : entities)
   {
-    if(x.type == 3)
+    if(x.type == 2)
     {
-      //take tree-to-click distance, tell user if it's too close to a tree, then return
-      inatree=true;
+      //take tree-to-click distance, tell user if it's too close to a tree
+      if(glm::distance(x.location, glm::vec3(pixel_read.x, pixel_read.y,0)) < 0.05)
+      {
+        cout << "too close to a tree, box lost" << endl;
+        inatree=true;
+      }
     }
   }
 
   //if you haven't returned yet, you're dealing with a valid click
 
-  for(auto x : entities)
+  for(auto &x : entities)
   {
     if((x.type == 0 || x.type == 1) && !x.dead)
     {
       //check distance to living good guy/bad guys, kill any that are too close, but do not return, because you still place a box there
+      if(glm::distance(glm::vec3(pixel_read.x, pixel_read.y, 0), glm::vec3(x.location.x, x.location.y, 0) )< 0.02)
+      {
+        cout << "aw jeez man, come on, you hit a ";
+        x.dead = true;
+
+        if(x.type == 1) //you hit a bad guy
+        {
+          score++;
+          cout << "bad";
+        }
+
+        if(x.type == 0) //you hit a good guy
+        {
+          score--;
+          cout << "good";
+        }
+
+        cout <<  " guy" << endl;
+      }
     }
   }
 
-  // find the box farthest away from vec3(0.9,0.8,0.0) - the "next" box
+  // start at the end of the list of entities, find the first dead box that's not on the board
+  for(int i = entities.size()-1; i > 0; i--)
+  {
+    if(entities[i].type == 3 && entities[i].location.x > 0.9)
+    {
+      entities[i].location = glm::vec3(pixel_read.x, pixel_read.y, 0);
+
+      if(inatree || inthewater)
+        entities[i].dead = true;
+      else
+        entities[i].dead = false;
+
+      break;
+    }
+  }
   // move that box to the point indicated by the click
-  // mark that box as live (!dead), unless inthewater or inatree, because then yo
+  // mark that box as live (!dead), unless inthewater or inatree, because then you want them inactive
+  boxes_left--;
+
 
 }
 

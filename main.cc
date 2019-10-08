@@ -93,7 +93,7 @@ void init()
   GLfloat right = 1.366f;
   GLfloat top = -0.768f;
   GLfloat bottom = 0.768f;
-  GLfloat zNear = 1.0f;
+  GLfloat zNear = 1.2f;
   GLfloat zFar = -1.0f;
 
 
@@ -316,12 +316,12 @@ void mouse( int button, int state, int x, int y )
       float calcx = (-phi + ((2*phi)/(205))*((int)pixel[0]-25));
       float calcy = (-phi + ((2*phi)/(205))*((int)pixel[1]-25));
 
-      cout << "R: " << (int)pixel[0] << " which is x: " << calcx << endl;
-      cout << "G: " << (int)pixel[1] << " which is y: " << calcy  << endl;
-      cout << "B: " << (int)pixel[2];
-
-      if((int) pixel[2] > 0)
-        cout << " which is ... UNDERWATER" << endl;
+      // cout << "R: " << (int)pixel[0] << " which is x: " << calcx << endl;
+      // cout << "G: " << (int)pixel[1] << " which is y: " << calcy  << endl;
+      // cout << "B: " << (int)pixel[2];
+      //
+      // if((int) pixel[2] > 0)
+      //   cout << " which is ... UNDERWATER" << endl;
 
       //do whatever you need to do
 
@@ -330,6 +330,11 @@ void mouse( int button, int state, int x, int y )
       //the b is usaully either 0 or 255  -> >0 tells you it's in the water
 
       datmodel->set_pos(glm::vec3(calcx/2, calcy/2, 0.0), glm::vec3(1,0,(float)pixel[2]));
+
+      if(pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0)
+        datmodel->handle_click(glm::vec3(0,0,0));
+      else
+        datmodel->handle_click(glm::vec3(calcx/2, calcy/2, pixel[2]/255.0));
 
       cout << endl;
 
@@ -345,6 +350,8 @@ void mouse( int button, int state, int x, int y )
 
     }
   }
+
+  cout << endl << "Your current score is " << datmodel->get_score() << endl;
 }
 
 //----------------------------------------------------------------------------

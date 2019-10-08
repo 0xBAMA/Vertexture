@@ -84,7 +84,9 @@ void main()
     // texture_height_offset = 0.6 * height_scale * vec4(trefn.xyz,0);
 
 
-  vec4 vPosition_local = vec4(0.5*vPosition.xy, vPosition.z, 1.0f) + texture_height_offset + vec4(offset.xy,0,0);
+  vec4 vPosition_rotated = rotationMatrix(vec3(0.0,0.0,1.0), 10 * offset.x * offset.y) * vec4(vPosition,1.0);
+
+  vec4 vPosition_local = vec4(0.5*vPosition_rotated.xy, vPosition_rotated.z, 1.0f) + texture_height_offset + vec4(offset.xy,0,0);
 
   gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f), 0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
 
