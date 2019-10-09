@@ -38,6 +38,7 @@ bool drawwater = true;
 
 bool drawclouds = false;
 bool big_radius = false;
+bool drawdudes = true;
 
 
 bool rotate = true;
@@ -178,7 +179,8 @@ void display()
     water->display();
 
 //DRAW THE DUDES AND TREES
-  datmodel->display();
+  if(drawdudes)
+    datmodel->display();
 
 
 //DRAW THE CLOUDS
@@ -230,10 +232,15 @@ void keyboard(unsigned char key, int x, int y)
     drawwater = !drawwater;
     break;
 
+
+
   case 'g':
     big_radius = !big_radius;
     break;
 
+case 'h':
+  drawdudes = !drawdudes;
+  break;
 
 
 
@@ -366,7 +373,8 @@ void mouse( int button, int state, int x, int y )
 void timer(int)
 {
   datmodel->big_radius = big_radius;
-  datmodel->update_sim();
+  if(rotate)
+    datmodel->update_sim();
 
   if(datmodel->get_boxes_left() == 0 && !datmodel->get_status())
   {
