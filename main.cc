@@ -37,6 +37,7 @@ bool drawground = true;
 bool drawwater = true;
 
 bool drawclouds = false;
+bool big_radius = false;
 
 
 bool rotate = true;
@@ -167,6 +168,8 @@ void display()
 //DRAW THE GROUND
   if(drawground)
     ground->display();
+  else
+    ground->display(true);
 
 
 
@@ -225,6 +228,10 @@ void keyboard(unsigned char key, int x, int y)
   case 'd':
     //toggle drawing of ground
     drawwater = !drawwater;
+    break;
+
+  case 'g':
+    big_radius = !big_radius;
     break;
 
 
@@ -358,6 +365,7 @@ void mouse( int button, int state, int x, int y )
 
 void timer(int)
 {
+  datmodel->big_radius = big_radius;
   datmodel->update_sim();
 
   if(datmodel->get_boxes_left() == 0 && !datmodel->get_status())

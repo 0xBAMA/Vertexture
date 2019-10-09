@@ -670,7 +670,7 @@ public:
   void set_pos(glm::vec3 pin, glm::vec3 cin)   {point_sprite_position = pin; point_sprite_color = cin;}
 
 
-
+  bool big_radius;
 
 private:
   GLuint vao;
@@ -741,6 +741,7 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
 {
 
   cursor_draw = false;
+  big_radius = false;
 
   //initialize all the vectors
   points.clear();
@@ -1533,7 +1534,13 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
     if((x.type == 0 || x.type == 1) && !x.dead)
     {
       //check distance to living good guy/bad guys, kill any that are too close, but do not return, because you still place a box there
-      if(glm::distance(glm::vec3(pixel_read.x, pixel_read.y, 0), glm::vec3(x.location.x, x.location.y, 0) )< 0.02)
+
+      float thresh = 0.02;
+      if(big_radius)
+        thresh = 0.1;
+
+
+      if(glm::distance(glm::vec3(pixel_read.x, pixel_read.y, 0), glm::vec3(x.location.x, x.location.y, 0) )< thresh)
       {
         cout << "aw jeez man, come on, you hit a ";
         x.dead = true;
