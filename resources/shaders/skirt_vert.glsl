@@ -21,8 +21,7 @@ uniform sampler2D water_tex;
 
 
 //thanks to Neil Mendoza via http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
-mat4 rotationMatrix(vec3 axis, float angle)
-{
+mat4 rotationMatrix(vec3 axis, float angle) {
     axis = normalize(axis);
     float s = sin(angle);
     float c = cos(angle);
@@ -34,41 +33,26 @@ mat4 rotationMatrix(vec3 axis, float angle)
                 0.0,                                0.0,                                0.0,                                1.0);
 }
 
-void main()
-{
+void main() {
+	vec4 vPosition_local = vec4(0.5*vPosition, 1.0f);
+	vec2 offset = vec2(0.0005 * t, 0.0001 * t);
+	vec4 height_read = texture(water_tex, 2*vPosition.xy + offset);
 
+	switch(scroll) {
+		case 0:
+			color = texture(ground_tex, scale * (0.25 * vPosition.xy));
+			break;
+		case 1:
+			color = texture(ground_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+			break;
+		case 2:
+			color = texture(ground_tex, scale * (0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+			break;
+		default:
+			color = vec4(1.0, 0.0, 0.0, 1.0);
+			break;
+	}
 
-  vec4 vPosition_local = vec4(0.5*vPosition, 1.0f);
-
-  vec2 offset = vec2(0.0005 * t, 0.0001 * t);
-  vec4 height_read = texture(water_tex, 2*vPosition.xy + offset);
-
-
-  // color = height_read;
-
-  // float scale = 1.0;
-
-  switch(scroll)
-  {
-    case 0:
-      color = texture(ground_tex, scale * (0.25 * vPosition.xy));
-      break;
-    case 1:
-      color = texture(ground_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      break;
-    case 2:
-      color = texture(ground_tex, scale * (0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      break;
-    default:
-      color = vec4(1.0, 0.0, 0.0, 1.0);
-      break;
-  }
-
-  // float height_offset = 0.2 * (color.z - 0.5);
-
-
-  vpos = vPosition_local;
-
-  gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
-
+	vpos = vPosition_local;
+	gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f),   0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
 }

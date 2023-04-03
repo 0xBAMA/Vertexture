@@ -13,8 +13,7 @@ uniform mat4 proj;
 uniform sampler2D rock_height_tex;
 
 //thanks to Neil Mendoza via http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
-mat4 rotationMatrix(vec3 axis, float angle)
-{
+mat4 rotationMatrix(vec3 axis, float angle) {
     axis = normalize(axis);
     float s = sin(angle);
     float c = cos(angle);
@@ -26,46 +25,32 @@ mat4 rotationMatrix(vec3 axis, float angle)
                 0.0,                                0.0,                                0.0,                                1.0);
 }
 
-void main()
-{
+void main() {
+	vec4 tref;
+	switch(scroll) {
+		case 0:
+			tref = texture(rock_height_tex, scale * (0.25 * vPosition.xy));
+			break;
+		case 1:
+			tref = texture(rock_height_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+			break;
+		case 2:
+			tref = texture(rock_height_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
+			break;
+		default:
+			tref = vec4(1.0, 0.0, 0.0, 1.0);
+			break;
+	}
 
+	vec4 vPosition_local;
+	color = vec4(0.25 * vPosition.x+0.5, 0.25 * vPosition.y+0.5, 0.0, 1.0);
 
-  vec4 tref;
+	if(tref.z < 0.5) {//water's surface
+		color.b = 1.0;
+		vPosition_local = vec4(0.5*vPosition, 1.0f);
+	} else {//ground - red is x, green is y
+		vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.2 * vec4(0,0,tref.z - 0.5,0);
+	}
 
-  switch(scroll)
-  {
-    case 0:
-      tref = texture(rock_height_tex, scale * (0.25 * vPosition.xy));
-      break;
-    case 1:
-      tref = texture(rock_height_tex, scale * (0.2 * vPosition.xy + vec2(t/1000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      break;
-    case 2:
-      tref = texture(rock_height_tex, scale * ( 0.2 * vPosition.xy + vec2(t/7000.0) + 0.15 * vPosition.xy + vec2(t/7000.0)));
-      break;
-    default:
-      tref = vec4(1.0, 0.0, 0.0, 1.0);
-      break;
-  }
-
-  vec4 vPosition_local;
-
-  color = vec4(0.25 * vPosition.x+0.5, 0.25 * vPosition.y+0.5, 0.0, 1.0);
-
-  if(tref.z < 0.5)
-  {//water's surface
-    color.b = 1.0;
-    vPosition_local = vec4(0.5*vPosition, 1.0f);
-  }
-  else
-  {//ground - red is x, green is y
-    vPosition_local = vec4(0.5*vPosition, 1.0f) + 0.2 * vec4(0,0,tref.z - 0.5,0);
-  }
-
-
-  gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f), 0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
-
-
-
-
+	gl_Position = proj * rotationMatrix(vec3(0.0f, 1.0f, 0.0f), 0.25) * rotationMatrix(vec3(1.0f, 0.0f, 0.0f), 2.15) * rotationMatrix(vec3(0.0f, 0.0f, 1.0f), 0.5 * sin(0.0005 * t) + 0.3) * vPosition_local;
 }

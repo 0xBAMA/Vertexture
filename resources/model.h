@@ -13,14 +13,13 @@
 //
 //  Date: 28 September 2019
 //******************************************************************************
+#include <random>
 #include <vector>
 #include <iostream>
 using std::cout;
 using std::endl;
 
-#include <random>
-
-#define MIN_POINT_PLACEMENT_THRESHOLD 0.01
+#define MIN_POINT_PLACEMENT_THRESHOLD 0.01f
 #define GLOBAL_POINTSIZE 7.5f
 
 #define POINT_SPRITE_PATH "resources/textures/height/sphere_small.png"
@@ -48,7 +47,6 @@ using std::endl;
 #define WATER_COLOR_TEXTURE "resources/textures/water_color.png"
 
 //**********************************************
-
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -176,14 +174,8 @@ GroundModel::GroundModel() {
 	//BUFFER, SEND DATA
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
 	int num_bytes_points = sizeof(glm::vec3) * points.size();
-	// int num_bytes_normals = sizeof(glm::vec3) * normals.size();
-	// int num_bytes_colors = sizeof(glm::vec3) * colors.size();
-
-	// glBufferData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals + num_bytes_colors, NULL, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, num_bytes_points, NULL, GL_STATIC_DRAW);
-
 	glBufferSubData(GL_ARRAY_BUFFER, 0, num_bytes_points, &points[0]);
 
 	//SHADERS (COMPILE, USE)
@@ -726,14 +718,6 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
 //    This function produces all the data for representing this object.
 //****************************************************************************
 void DudesAndTreesModel::generate_points() {
-	// for(int x = 5; x >= -5; x--)
-	// {
-	//   for(int y = -5; y<= 5; y++)
-	//   {
-	//     points.push_back(glm::vec3(0.05*x,0.05*y,0.1f));
-	//     cout << "x " << x << " y " << y << endl;
-	//   }
-	// }
 
 	points.push_back(glm::vec3(0.0,0.0,0.0));
 
@@ -749,108 +733,34 @@ void DudesAndTreesModel::generate_points() {
 	points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.05));
 	points.push_back(glm::vec3(2.0*dist0(mt),2.0*dist0(mt),-0.06));
 
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.01));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.02));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.03));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.04));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.05));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.06));
-
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.01));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.02));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.03));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.04));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.05));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),-0.06));
-
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.01));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.02));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.03));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.04));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.05));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.06));
-
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.01));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.02));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.03));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.04));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.05));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.06));
-
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.01));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.02));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.03));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.04));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.05));
-	points.push_back(glm::vec3(dist0(mt),dist0(mt),0.06));
-
+	for ( int i = 0; i < 3; i++ ) {
+		for ( float v = 0.01; v <= 0.06; v += 0.01 ) {
+			cout << "ding" << endl;
+			points.push_back(glm::vec3(dist0(mt),dist0(mt),-v));
+			points.push_back(glm::vec3(dist0(mt),dist0(mt),v));
+		}
+	}
 
 	num_tree_pts = points.size();
 
 	std::uniform_real_distribution<float> dist1(-0.14f, 0.12f);
 	std::uniform_real_distribution<float> dist2(0.05f, 0.08f);
 
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
-	points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
-
+	for ( int i = 0; i < 45; i++ ) {
+		points.push_back(glm::vec3(dist1(mt),dist1(mt),dist2(mt)));
+		points.push_back(glm::vec3(dist1(mt),-dist1(mt),dist2(mt)));
+		points.push_back(glm::vec3(-dist1(mt),dist1(mt),dist2(mt)));
+		points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
+	}
 
 	num_treetop_pts = points.size() - num_tree_pts;
 
+
+// box points - conver this to a polygonal mesh, no point doing points
 	box_start = points.size();
 
-	//generate box points
 	glm::vec3 a,b,c,d,e,f,g,h;
 	float nx,ny,nz,px,py,pz;
-
 	nx = -0.05;
 	ny = -0.05;
 	nz = -0.0;
@@ -859,29 +769,13 @@ void DudesAndTreesModel::generate_points() {
 	pz =  0.03;
 
 	a = glm::vec3(nx,py,pz);
-	// points.push_back(a);
-
 	b = glm::vec3(nx,ny,pz);
-	// points.push_back(b);
-
 	c = glm::vec3(px,py,pz);
-	// points.push_back(c);
-
 	d = glm::vec3(px,ny,pz);
-	// points.push_back(d);
-
 	e = glm::vec3(nx,py,nz);
-	// points.push_back(e);
-
 	f = glm::vec3(nx,ny,nz);
-	// points.push_back(f);
-
 	g = glm::vec3(px,py,nz);
-	// points.push_back(g);
-
 	h = glm::vec3(px,ny,nz);
-	// points.push_back(h);
-
 
 	// 	   e-------g    +y
 	// 	  /|      /|		 |
@@ -892,17 +786,13 @@ void DudesAndTreesModel::generate_points() {
 	// 	|/      |/
 	// 	b-------d
 
-
 	subd_square(a,b,c,d);
 	subd_square(a,b,e,f);
 	subd_square(a,e,c,g);
 	subd_square(e,g,f,h);
 	subd_square(g,h,c,d);
 	subd_square(b,f,d,h);
-
 	num_box_pts = points.size() - box_start;
-
-	// cout << "num_box_pts is " << num_box_pts << endl;
 }
 
 void DudesAndTreesModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d) {
