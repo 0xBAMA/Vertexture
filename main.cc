@@ -19,10 +19,7 @@ int animation_time = 0;
 GroundModel*       ground;
 DudesAndTreesModel* datmodel;
 WaterModel*        water;
-CloudModel*        clouds;
 SkirtModel*        skirts;
-
-
 
 //parameters for the game
 int num_good_guys;
@@ -30,13 +27,10 @@ int num_bad_guys;
 int num_trees;
 int num_boxes_initial;
 
-
-
 //should you draw the models?
 bool drawground = true;
 bool drawwater = true;
 
-bool drawclouds = false;
 bool big_radius = false;
 bool drawdudes = true;
 
@@ -45,10 +39,6 @@ bool rotate = true;
 int temp_time = animation_time;
 
 int scroll = 0; // 0 - no scrolling, 1 - slow, 2 - faster
-
-
-
-
 
 //DEBUG STUFF
 
@@ -59,14 +49,11 @@ MessageCallback( GLenum source,
                  GLenum severity,
                  GLsizei length,
                  const GLchar* message,
-                 const void* userParam )
-{
-  fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-           ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
-            type, severity, message );
+                 const void* userParam ) {
+	if ( severity != GL_DEBUG_SEVERITY_NOTIFICATION )
+		fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+			( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );
 }
-
-
 
 void init()
 {
@@ -76,11 +63,8 @@ void init()
   datmodel = new DudesAndTreesModel(num_good_guys, num_bad_guys, num_trees, num_boxes_initial);
   cout << "initializing water model" << endl;
   water = new WaterModel();
-  cout << "initializing cloud model" << endl;
-  clouds = new CloudModel();
   cout << "initializing skirt model" << endl;
   skirts = new SkirtModel();
-
 
   // GLfloat left = -1.920f;
   // GLfloat right = 1.920f;
@@ -89,8 +73,6 @@ void init()
   // GLfloat zNear = -1.0f;
   // GLfloat zFar = 1.0f;
 
-
-
   GLfloat left = -1.366f;
   GLfloat right = 1.366f;
   GLfloat top = -0.768f;
@@ -98,16 +80,11 @@ void init()
   GLfloat zNear = 1.2f;
   GLfloat zFar = -1.0f;
 
-
-
-
-
   glm::mat4 proj = glm::ortho(left, right, top, bottom, zNear, zFar);
 
   ground->set_proj(proj);
   water->set_proj(proj);
   datmodel->set_proj(proj);
-  clouds->set_proj(proj);
   skirts->set_proj(proj);
 
   ground->set_scroll(scroll);
@@ -116,16 +93,10 @@ void init()
 
   glEnable(GL_DEPTH_TEST);
 
-  // glEnable(GL_DITHER); //something interesting to mess with in the future - might be depreciated, use a shader
-
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glEnable(GL_LINE_SMOOTH);
-
-
-
-
 
   //DEBUG
 
@@ -134,15 +105,11 @@ void init()
 
   cout << endl << endl << " GL_DEBUG_OUTPUT ENABLED " << endl;
 
-
-
-
   // double phi = (1 + std::sqrt(5.0))/2.0;  //golden ratio, used to compute icosahedron
   // glClearColor(1/phi, 1/phi, 1/phi, 1.0); // grey background
 
   // glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
 }
 
 //----------------------------------------------------------------------------
@@ -152,18 +119,14 @@ void display()
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
   if(rotate)
   {
     animation_time++;
     ground->set_time(animation_time);
     datmodel->set_time(animation_time);
     water->set_time(animation_time);
-    clouds->set_time(animation_time);
     skirts->set_time(animation_time);
   }
-
-
 
 
 //DRAW THE GROUND
@@ -171,7 +134,6 @@ void display()
     ground->display();
   else
     ground->display(true);
-
 
 
 //DRAW THE WATER
@@ -183,14 +145,8 @@ void display()
     datmodel->display();
 
 
-//DRAW THE CLOUDS
-  if(drawclouds)
-    clouds->display();
-
 //DRAW THE SKIRTS
   skirts->display();
-
-
 
   glFlush();
   glutSwapBuffers();
@@ -266,18 +222,11 @@ case 'h':
     skirts->set_scroll(scroll);
     break;
 
-  case 'c':
-    //toggle drawing of clouds
-    drawclouds = !drawclouds;
-    break;
-
-
   case 'v':
     //stop or start the rotation;
     temp_time = animation_time;
     rotate = !rotate;
     break;
-
 
   case 'b':
     ground->toggle_normals();
@@ -311,17 +260,12 @@ void mouse( int button, int state, int x, int y )
       //clear the screen
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-
       //render with selection colors
       ground->display(true);
-
-
 
       //read out the pixel
 
       double phi = 1.618;
-
       y = glutGet( GLUT_WINDOW_HEIGHT ) - y;
 
       unsigned char pixel[4];
@@ -352,15 +296,10 @@ void mouse( int button, int state, int x, int y )
 
       cout << endl;
 
-
-
-
       //clear the screen
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       glutPostRedisplay();
-
-
 
     }
     cout << endl << "Your current score is " << datmodel->get_score() << endl;
@@ -387,46 +326,10 @@ void timer(int)
 
 //----------------------------------------------------------------------------
 
-
-
 void idle( void )
 {
 	// glutPostRedisplay();
 }
-
-
-//----------------------------------------------------------------------------
-
-// static int menu_id;
-// static int submenu_id;
-//
-// void menu(int choice)
-// {
-//   cout << choice << endl;
-// }
-//
-// void create_menu()
-// {
-//   //this is some example code from https://www.programming-techniques.com/2012/05/glut-tutorial-creating-menus-and-submenus-in-glut.html
-//   submenu_id = glutCreateMenu(menu);
-//
-//   glutAddMenuEntry("Sphere", 2);
-//   glutAddMenuEntry("Cone", 3);
-//   glutAddMenuEntry("Torus", 4);
-//   glutAddMenuEntry("Teapot", 5);
-//
-//   menu_id = glutCreateMenu(menu);
-//
-//   glutAddMenuEntry("Clear", 1);
-//   glutAddSubMenu("Draw", submenu_id);
-//   glutAddMenuEntry("Quit", 0);
-//
-//   glutAttachMenu(GLUT_RIGHT_BUTTON);
-// }
-
-
-
-
 
 //----------------------------------------------------------------------------
 
@@ -436,7 +339,6 @@ int main(int argc, char **argv)
   glutInitDisplayMode(GLUT_MULTISAMPLE | GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
   // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // no MSAA
 
-
   glutInitContextVersion( 4, 5 );
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 
@@ -444,8 +346,6 @@ int main(int argc, char **argv)
   glutInitWindowSize(720,480);
   glutCreateWindow("GLUT");
   // glutFullScreen();
-
-
 
   if(argc == 5)
   {
@@ -477,11 +377,6 @@ int main(int argc, char **argv)
       num_boxes_initial = 3;
   }
 
-
-
-
-
-
   glewInit();
 
   init();
@@ -493,11 +388,9 @@ int main(int argc, char **argv)
 
   cout << endl << " GL_MAX_TEXTURE_IMAGE_UNITS returned:" << textureCount << endl << endl;
 
-
   // glutGameModeString("640x480");   //not working, crashes shit - would be nice to get it working though
   // glutEnterGameMode();   //the main benefit I'm seeing is that it sets up a framebuffer of that dimension
                     //but there are other ways to achieve this effect.
-
 
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
@@ -505,65 +398,6 @@ int main(int argc, char **argv)
   glutIdleFunc( idle );
   glutTimerFunc(1000.0/60.0, timer, 0);
   // glutReshapeFunc(reshape);
-
-
-
-  //not sure what all these values mean, but I want to figure out compute shaders for the final project
-
-  GLint data[3];
-
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,0, &data[0]);
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,1, &data[1]);
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_COUNT,2, &data[2]);
-
-  cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_COUNT returned x:" << data[0] << " y:" << data[1] << " z:" << data[2] << endl;
-
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_SIZE,0, &data[0]);
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_SIZE,1, &data[1]);
-  glGetIntegeri_v( 	GL_MAX_COMPUTE_WORK_GROUP_SIZE,2, &data[2]);
-
-cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_SIZE returned x:" << data[0] << " y:" << data[1] << " z:" << data[2] << endl;
-
-
-  GLint max;
-  glGetIntegerv(  GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max);
-
-  cout << endl << " GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS returned: " << max << endl << endl;
-
-
-  glGetIntegerv(  GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &max);
-
-  cout << endl << " GL_MAX_COMPUTE_SHARED_MEMORY_SIZE returned: " << max << " bytes" << endl << endl;
-
-
-
-
-
-  // if (glewIsSupported("GL_EXT_shader_image_load_store"))
-  // {  //supposedly you need this to write to a shader - (NOT ACCURATE 10/5 - but does require using image load/store)
-  //   cout << " GL_EXT_shader_image_load_store is supported" << endl;
-  // }
-
-
-
-
-
-  //checking extensions
-
-    // cout << "list of extensions: " << endl;
-    //
-    // GLint n=0;
-    // glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-    //
-    // for (GLint i=0; i<n; i++)
-    // {
-    //   const char* extension =
-    //     (const char*)glGetStringi(GL_EXTENSIONS, i);
-    //   printf("      Ext %d: %s\n", i, extension);
-    // }
-
-
-
 
   glutMainLoop();
   return(EXIT_SUCCESS);

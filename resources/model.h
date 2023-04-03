@@ -22,19 +22,10 @@ using std::endl;
 
 #include <random>
 
-
-
-
-
-
 #define MIN_POINT_PLACEMENT_THRESHOLD 0.01
 #define GLOBAL_POINTSIZE 7.5f
 
-
-
-
 #define POINT_SPRITE_PATH "resources/textures/height/sphere_small.png"
-
 
 #define GROUND_NORMAL_PATH "resources/textures/normals/rock_norm.png"
 #define GROUND_NORMAL2_PATH "resources/textures/normals/rock_norm_smooth1.png"
@@ -54,15 +45,9 @@ using std::endl;
 // #define GROUND_TEXTURE_PATH "resources/textures/height/bears2.png"
 // #define GROUND_TEXTURE_PATH "resources/textures/height/united-kingdom-2048.png"
 
-
 #define WATER_HEIGHT_TEXTURE "resources/textures/height/water_height.png"
 #define WATER_NORMAL_TEXTURE "resources/textures/normal/water_normal.png"
 #define WATER_COLOR_TEXTURE "resources/textures/water_color.png"
-
-
-
-
-
 
 //**********************************************
 
@@ -70,11 +55,9 @@ using std::endl;
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-
 // GLUT
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
-
 
 // Shader Compilation
 #include "shaders/Shader.h"
@@ -84,67 +67,12 @@ using std::endl;
 #include "../resources/LodePNG/lodepng.h"
 // Good, simple png library
 
-
-#include "../resources/perlin.h"
-//perlin noise generation
-
 //**********************************************
 
 #define GLM_FORCE_SWIZZLE
 #include "glm/glm.hpp" //general vector types
 #include "glm/gtc/matrix_transform.hpp" // for glm::ortho
 #include "glm/gtc/type_ptr.hpp" //to send matricies gpu-side
-
-
-//******************************************************************************
-//  Function: planetest
-//
-//  NOTE: This comes up with some frequency. I'll be carrying this along for a while.
-//
-//  Purpose:
-//      Return true if the test point is below the plane. Return false if the
-//      test point is below the plane. Above and below are determined with
-//      respect to the normal specified by plane_norm. This is used to confirm
-//      that computed normals are actually pointing outwards, by testing a
-//      point that is known to be inside the shape against the computed normal.
-//      If the point is below the plane specified by plane_norm and plane_point,
-//      we know that that normal will be valid. Otherwise, it needs to be
-//      inverted.
-//
-//  Parameters:
-//      plane_point - the point from which the normal will originate
-//      plane_norm - what direction is 'up'?
-//      test_point - you want to know if this is above or below the plane
-//
-//  Preconditions:
-//      plane_norm must be given as a nonzero vector
-//
-//  Postconditions:
-//      true or false is returned to tell the user the restult of their query
-//
-//******************************************************************************
-
-bool planetest(glm::vec3 plane_point, glm::vec3 plane_norm, glm::vec3 test_point)
-{
-  double result, a, b, c, x, x1, y, y1, z, z1;
-
-  a  =  plane_norm.x;   b  =  plane_norm.y;  c  =  plane_norm.z;
-  x  =  test_point.x;   y  =  test_point.y;  z  =  test_point.z;
-  x1 = plane_point.x;   y1 = plane_point.y;  z1 = plane_point.z;
-
-  //equation of a plane is:
-    // a (x-x1) + b (y-y1) + c (z-z1) = 0;
-
-  result = a * (x-x1) + b * (y-y1) + c * (z-z1);
-
-  return (result < 0) ? true:false;
-}
-
-
-
-
-
-
 
 //******************************************************************************
 //  Class: GroundModel
@@ -172,7 +100,6 @@ bool planetest(glm::vec3 plane_point, glm::vec3 plane_norm, glm::vec3 test_point
 //        latest values of the uniform variables are sent to the GPU.
 //******************************************************************************
 
-
 class GroundModel
 {
 public:
@@ -187,9 +114,6 @@ public:
   void scale_up()               {scale *= 1.618f;}
   void scale_down()             {scale /= 1.618f;}
   void set_proj(glm::mat4 pin)  {proj = pin;}
-
-
-
 
 private:
   GLuint vao;
@@ -216,8 +140,6 @@ private:
   GLuint uScroll;
   GLuint uScale;
   GLuint uNorm;
-
-
 
   GLuint uHeightSampler;
   GLuint uNormal1Sampler;
@@ -246,7 +168,6 @@ private:
   //  Purpose:
   //    Calls generate_points() and then sets up everything related to the GPU
   //****************************************************************************
-
 
 GroundModel::GroundModel()
 {
@@ -318,8 +239,6 @@ GroundModel::GroundModel()
   uScale = glGetUniformLocation(shader_program, "scale");
   glUniform1f(uScale, scale);
 
-
-
   //THE TEXTURE
 
   std::vector<unsigned char> image;
@@ -370,12 +289,6 @@ GroundModel::GroundModel()
 
   cout << " loaded height texture" << endl;
 
-
-
-
-
-
-
   glGenTextures(1, &normal_tex_1);
   glBindTexture(GL_TEXTURE_2D, normal_tex_1);
 
@@ -389,12 +302,6 @@ GroundModel::GroundModel()
   glGenerateMipmap(GL_TEXTURE_2D);
 
   cout << " loaded normal texture" << endl;
-
-
-
-
-
-
 
   glGenTextures(1, &normal_tex_2);
   glBindTexture(GL_TEXTURE_2D, normal_tex_2);
@@ -411,12 +318,6 @@ GroundModel::GroundModel()
 
   cout << " loaded normal texture2" << endl;
 
-
-
-
-
-
-
   glGenTextures(1, &normal_tex_3);
   glBindTexture(GL_TEXTURE_2D, normal_tex_3);
 
@@ -431,8 +332,6 @@ GroundModel::GroundModel()
 
   cout << " loaded normal texture3" << endl;
 
-
-
   uHeightSampler = glGetUniformLocation(shader_program, "height_tex");
   uNormal1Sampler = glGetUniformLocation(shader_program, "normal_tex");
   uNormal2Sampler = glGetUniformLocation(shader_program, "normal_smooth1_tex");
@@ -442,8 +341,6 @@ GroundModel::GroundModel()
   glUniform1i(uNormal1Sampler, 1);  //normal1 goes in texture unit 1
   glUniform1i(uNormal2Sampler, 2);  //normal2 goes in texture unit 2
   glUniform1i(uNormal3Sampler, 3);  //normal3 goes in texture unit 3
-
-
 }
 
   //****************************************************************************
@@ -507,9 +404,6 @@ void GroundModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d
   }
 }
 
-
-
-
   //****************************************************************************
   //  Function: GroundModel::display()
   //
@@ -522,17 +416,14 @@ void GroundModel::display(bool select)
 {
   glBindVertexArray(vao);
 
-
   if(select)
   {
     glUseProgram(selection_shader_program);
-
 
     glUniform1i(uTime, time);
     glUniform1i(uScroll, scroll);
     glUniform1f(uScale, scale);
     // glUniform1i(uNorm, show_normals);
-
 
     glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
     glBindTexture(GL_TEXTURE_2D, height_tex);
@@ -560,7 +451,6 @@ void GroundModel::display(bool select)
     glUniform1f(uScale, scale);
     glUniform1i(uNorm, show_normals);
 
-
     glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
     glBindTexture(GL_TEXTURE_2D, height_tex);
 
@@ -573,35 +463,12 @@ void GroundModel::display(bool select)
     glActiveTexture(GL_TEXTURE0 + 3); // Texture unit 3
     glBindTexture(GL_TEXTURE_2D, normal_tex_3);
 
-
     glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
     glDrawArrays(GL_TRIANGLES, 0, num_pts);
 
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -632,10 +499,8 @@ void GroundModel::display(bool select)
 //        latest values of the uniform variables are sent to the GPU.
 //******************************************************************************
 
-
 class DudesAndTreesModel
 {
-
   typedef struct entity_t
   {
     glm::vec3 location; //really only using x,y
@@ -645,9 +510,7 @@ class DudesAndTreesModel
 
 
 public:
-
   DudesAndTreesModel(int num_good_guys, int num_bad_guys, int num_trees, int num_boxes_initial);
-
 
   void display();
 
@@ -669,7 +532,6 @@ public:
 
   void set_pos(glm::vec3 pin, glm::vec3 cin)   {point_sprite_position = pin; point_sprite_color = cin;}
 
-
   bool big_radius;
 
 private:
@@ -681,10 +543,7 @@ private:
 
   GLuint shader_program;
 
-
   std::vector<entity> entities;
-
-
 
   int num_box_pts, num_tree_pts, num_treetop_pts, box_start, boxes_left, score, status; //how many points?
 
@@ -702,12 +561,9 @@ private:
   GLuint uPosition;
   GLuint uBounce;
 
-
   GLuint uHeightSampler;  //textures
   GLuint uNormalSampler;
   GLuint uPointSpriteSampler;
-
-
 
 //VALUES OF THOSE UNIFORMS
   int time, bounce;
@@ -736,7 +592,6 @@ private:
   //    Calls generate_points() and then sets up everything related to the GPU
   //****************************************************************************
 
-
 DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int num_trees, int num_boxes_initial)
 {
 
@@ -760,13 +615,7 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
   boxes_left = num_boxes_initial;
   score = 0;
 
-
-
 // //generate a list of entitites
-//
-
-//
-
 //random number generation
   std::random_device rd;
   std::mt19937 mt(rd());
@@ -774,11 +623,6 @@ DudesAndTreesModel::DudesAndTreesModel(int num_good_guys, int num_bad_guys, int 
   //example usage for random number generation:
   // for (int i=0; i<16; ++i)
   //         std::cout << dist(mt) << "\n";
-
-
-
-
-
 
 //POPULATE THE LIST OF ENTITIES
 entity temp;
@@ -820,10 +664,7 @@ entity temp;
     entities.push_back(temp);
   }
 
-
 //boxes aren't placed yet
-
-
 
 for (int bx = 0; bx < num_boxes_initial; bx++)
 {
@@ -836,12 +677,6 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
   //entities.push_back(your tree);
   entities.push_back(temp);
 }
-
-
-
-
-
-
 
 //SETTING UP GPU STUFF
   //VAO
@@ -907,7 +742,6 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
   glUniform3fv(uPosition, 1, glm::value_ptr(point_sprite_position));
 
 
-
   //THE TEXTURE
 
   std::vector<unsigned char> image;
@@ -938,7 +772,6 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
     std::cout << "  error with lodepng ground normal texture loading " << error3 << ": " << lodepng_error_text(error3) << std::endl;
   }
 
-
   glEnable(GL_TEXTURE_2D);
   glGenTextures(1, &ground_tex);
 
@@ -954,8 +787,6 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
   glGenerateMipmap(GL_TEXTURE_2D);
 
   cout << " loaded ground texture" << endl;
-
-
 
 
   glGenTextures(1, &ground_norm_tex);
@@ -974,11 +805,6 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
   cout << " loaded ground normal texture" << endl;
 
 
-
-
-
-
-
   glGenTextures(1, &point_sprite);
 
   glBindTexture(GL_TEXTURE_2D, point_sprite);
@@ -993,8 +819,6 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
   glGenerateMipmap(GL_TEXTURE_2D);
 
   cout << " loaded point sprite texture" << endl;
-
-
 
 
   uHeightSampler = glGetUniformLocation(shader_program, "rock_height_tex");
@@ -1024,7 +848,6 @@ for (int bx = 0; bx < num_boxes_initial; bx++)
 //
 // }
 
-
 void DudesAndTreesModel::generate_points()
 {
 
@@ -1036,9 +859,6 @@ void DudesAndTreesModel::generate_points()
       //     cout << "x " << x << " y " << y << endl;
       //   }
       // }
-
-
-
 
       points.push_back(glm::vec3(0.0,0.0,0.0));
 
@@ -1150,12 +970,9 @@ void DudesAndTreesModel::generate_points()
       points.push_back(glm::vec3(-dist1(mt),-dist1(mt),dist2(mt)));
 
 
-
       num_treetop_pts = points.size() - num_tree_pts;
 
-
       box_start = points.size();
-
 
 
       //generate box points
@@ -1217,14 +1034,6 @@ void DudesAndTreesModel::generate_points()
       // cout << "num_box_pts is " << num_box_pts << endl;
 
 
-
-
-
-
-
-
-
-
   // //GENERATING GEOMETRY
   //
   // glm::vec3 a, b, c, d;
@@ -1271,7 +1080,6 @@ void DudesAndTreesModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm:
   }
 }
 
-
   //****************************************************************************
   //  Function: DudesAndTreesModel::display()
   //
@@ -1294,14 +1102,11 @@ void DudesAndTreesModel::display()
   glActiveTexture(GL_TEXTURE0 + 2); // Texture unit 2
   glBindTexture(GL_TEXTURE_2D, point_sprite);
 
-
   glUniform1i(uTime, time);
   glUniform1i(uScroll, scroll);
   glUniform1f(uScale, scale);
 
-
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
-
 
   for(auto x: entities)
   {
@@ -1313,7 +1118,6 @@ void DudesAndTreesModel::display()
       glPointSize(14.0);
       bounce = 1;
       glUniform1i(uBounce, bounce);
-
 
       //set the color, 0 is good, they are blue, 1 is bad, they are red
       if(!x.dead)
@@ -1369,8 +1173,6 @@ void DudesAndTreesModel::display()
     {//shouldn't get here
 
     }
-
-
   }
 
   if(cursor_draw)
@@ -1381,10 +1183,7 @@ void DudesAndTreesModel::display()
     glPointSize(25.0);
     glDrawArrays(GL_POINTS, 0, 1);  //draw the point
   }
-
-
 }
-
 
 void DudesAndTreesModel::update_sim()  //called from timer function
 {
@@ -1432,7 +1231,6 @@ void DudesAndTreesModel::update_sim()  //called from timer function
               entities[i].dead = true;
             }
           }
-
 
           //logic to capture a box
           if(!x.type && !captured_this_cycle)
@@ -1584,19 +1382,7 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
   // move that box to the point indicated by the click
   // mark that box as live (!dead), unless inthewater or inatree, because then you want them inactive
   boxes_left--;
-
-
 }
-
-
-
-
-
-
-
-
-
-
 
 
 // glm::vec3 a, b, c, d;
@@ -1607,16 +1393,6 @@ void DudesAndTreesModel::handle_click(glm::vec3 pixel_read)  //called from mouse
 // b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
 // c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
 // d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
-
-
-
-
-
-
-
-
-
-
 
 
 //******************************************************************************
@@ -1764,24 +1540,12 @@ WaterModel::WaterModel()
   proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
   glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-
-
-
-
-
     uScroll = glGetUniformLocation(shader_program, "scroll");
     glUniform1i(uScroll, scroll);
 
     scale = 1.0;
     uScale = glGetUniformLocation(shader_program, "scale");
     glUniform1f(uScale, scale);
-
-
-
-
-
-
-
 
 
   //THE TEXTURE
@@ -1823,7 +1587,6 @@ WaterModel::WaterModel()
   }
 
 
-
   glEnable(GL_TEXTURE_2D);
   glGenTextures(1, &ground_tex);
   glBindTexture(GL_TEXTURE_2D, ground_tex);
@@ -1838,8 +1601,6 @@ WaterModel::WaterModel()
   glGenerateMipmap(GL_TEXTURE_2D);
 
   cout << " loaded ground texture" << endl;
-
-
 
 
   glEnable(GL_TEXTURE_2D);
@@ -1858,7 +1619,6 @@ WaterModel::WaterModel()
   cout << " loaded wave displacement texture" << endl;
 
 
-
   glEnable(GL_TEXTURE_2D);
   glGenTextures(1, &normal_tex);
   glBindTexture(GL_TEXTURE_2D, normal_tex);
@@ -1873,9 +1633,6 @@ WaterModel::WaterModel()
   glGenerateMipmap(GL_TEXTURE_2D);
 
   cout << " loaded wave normal texture" << endl;
-
-
-
 
   glEnable(GL_TEXTURE_2D);
   glGenTextures(1, &color_tex);
@@ -1893,11 +1650,6 @@ WaterModel::WaterModel()
 
   cout << " loaded wave color texture" << endl;
 
-
-
-
-
-
   ground_tex_sampler = glGetUniformLocation(shader_program, "ground_tex");
   displacement_tex_sampler = glGetUniformLocation(shader_program, "height_tex");
   normal_tex_sampler = glGetUniformLocation(shader_program, "normal_tex");
@@ -1907,15 +1659,6 @@ WaterModel::WaterModel()
   glUniform1i(displacement_tex_sampler,   1);   //height goes in texture unit 1
   glUniform1i(normal_tex_sampler,   2);   //normal goes in texture unit 2
   glUniform1i(color_tex_sampler,   3);   //color  goes in texture unit 3
-
-
-
-
-
-
-
-
-
 
 }
 
@@ -1980,9 +1723,6 @@ void WaterModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
   }
 }
 
-
-
-
   //****************************************************************************
   //  Function: WaterModel::display()
   //
@@ -2022,36 +1762,6 @@ void WaterModel::display()
 
   glDrawArrays(GL_TRIANGLES, 0, num_pts);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //******************************************************************************
@@ -2145,7 +1855,6 @@ private:
   //    Calls generate_points() and then sets up everything related to the GPU
   //****************************************************************************
 
-
 SkirtModel::SkirtModel()
 {
 
@@ -2213,9 +1922,6 @@ SkirtModel::SkirtModel()
   glUniform1f(uScale, scale);
 
 
-
-
-
   //THE TEXTURE
 
   std::vector<unsigned char> image;
@@ -2226,7 +1932,6 @@ SkirtModel::SkirtModel()
 
   unsigned width2, height2;
   unsigned error2 = lodepng::decode(image2, width2, height2, "resources/textures/height/wave_height.png", LodePNGColorType::LCT_RGBA, 8);
-
 
   // If there's an error, display it.
   if(error != 0) {
@@ -2252,12 +1957,6 @@ SkirtModel::SkirtModel()
 
   cout << " loaded ground texture" << endl;
 
-
-
-
-
-
-
   glGenTextures(1, &water_tex);
   glBindTexture(GL_TEXTURE_2D, water_tex);
 
@@ -2280,9 +1979,6 @@ SkirtModel::SkirtModel()
 
   glUniform1i(ground_tex_sampler,   0);   //height of the ground goes in texture unit 0
   glUniform1i(water_tex_sampler,   1);   //height of the water goes in texture unit 1
-
-
-
 
 }
 
@@ -2369,9 +2065,6 @@ void SkirtModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
   }
 }
 
-
-
-
   //****************************************************************************
   //  Function: SkirtModel::display()
   //
@@ -2402,346 +2095,4 @@ void SkirtModel::display()
 
   glDrawArrays(GL_TRIANGLES, 0, num_pts_back);
   glDrawArrays(GL_TRIANGLES, num_pts_back, num_pts_front);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//******************************************************************************
-//  Class: CloudModel
-//
-//  Purpose:  To represent the ground on the GPU, and everything that goes along
-//        with displaying this ball to the user.
-//
-//  Functions:
-//
-//    Constructor:
-//        Takes no arguments, calls generate_points() to create geometry. Then
-//        buffers all this data to the GPU memory.
-//
-//    Setters:
-//        Used to update the values of the uniform variables.
-//
-//    Generate Points:
-//        Creates a square, subdivides the faces several times, and creates
-//        triangles to span the shape. This data is used to populate the
-//        vectors containing point data.
-//
-//    Display:
-//        Makes sure the correct shader is being used, that the correct buffers
-//        are bound, that the vertex attributes are set up, and that all the
-//        latest values of the uniform variables are sent to the GPU.
-//******************************************************************************
-
-
-class CloudModel    //clouds will be a bunch of triangles, a la v07, and reference a 3d texture loaded from perlin noise
-{
-public:
-
-  CloudModel();
-
-  void display();
-
-  void set_time(int tin)        {time = tin;}
-  void set_proj(glm::mat4 pin)  {proj = pin;}
-
-  void increase_thresh()        {thresh += 0.01; cout << thresh << endl;}
-  void decrease_thresh()        {thresh -= 0.01; cout << thresh << endl;}
-
-
-private:
-  GLuint vao;
-  GLuint buffer;
-  GLuint tex;
-
-  GLuint shader_program;
-
-  int num_pts; //how many points?
-
-//VERTEX ATTRIB LOCATIONS
-  GLuint vPosition;
-  // GLuint vNormal;
-  // GLuint vColor;
-
-//UNIFORM LOCATIONS
-  GLuint uTime;   //animation time
-  GLuint uProj;   //projection matrix
-  GLuint uThresh;   //cutoff for water
-
-
-//VALUES OF THOSE UNIFORMS
-  int time;
-  float thresh;
-  glm::mat4 proj;
-
-  void generate_points();
-  void subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d);
-
-  std::vector<glm::vec3> points;    //add the 1.0 w value in the shader
-  // std::vector<glm::vec3> normals;
-  // std::vector<glm::vec3> colors;
-};
-
-  //****************************************************************************
-  //  Function: CloudModel Constructor
-  //
-  //  Purpose:
-  //    Calls generate_points() and then sets up everything related to the GPU
-  //****************************************************************************
-
-
-CloudModel::CloudModel()
-{
-
-  //initialize all the vectors
-  points.clear();
-
-  //fill those vectors with geometry
-  generate_points();
-
-
-//SETTING UP GPU STUFF
-  //VAO
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-
-  //BUFFER, SEND DATA
-  glGenBuffers(1, &buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
-  int num_bytes_points = sizeof(glm::vec3) * points.size();
-  // int num_bytes_normals = sizeof(glm::vec3) * normals.size();
-  // int num_bytes_colors = sizeof(glm::vec3) * colors.size();
-
-  // glBufferData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals + num_bytes_colors, NULL, GL_STATIC_DRAW);
-  glBufferData(GL_ARRAY_BUFFER, num_bytes_points, NULL, GL_STATIC_DRAW);
-
-  glBufferSubData(GL_ARRAY_BUFFER, 0, num_bytes_points, &points[0]);
-  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points, num_bytes_normals, &normals[0]);
-  // glBufferSubData(GL_ARRAY_BUFFER, num_bytes_points + num_bytes_normals, num_bytes_colors, &colors[0]);
-
-  //SHADERS (COMPILE, USE)
-  cout << " compiling cloud shaders" << endl;
-  Shader s("resources/shaders/cloud_vert.glsl", "resources/shaders/cloud_frag.glsl");
-
-  shader_program = s.Program;
-
-  glUseProgram(shader_program);
-
-  //VERTEX ATTRIB AND UNIFORM LOCATIONS
-
-  // Initialize the vertex position attribute from the vertex shader
-  vPosition = glGetAttribLocation(shader_program, "vPosition");
-  glEnableVertexAttribArray(vPosition);
-  glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, ((GLvoid*) (0)));
-
-  //UNIFORMS
-  uTime = glGetUniformLocation(shader_program, "t");
-  glUniform1i(uTime, time);
-
-  uProj = glGetUniformLocation(shader_program, "proj");
-  proj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
-  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
-
-
-  thresh = 0.56f;
-  uThresh = glGetUniformLocation(shader_program, "thresh");
-  glUniform1f(uThresh, thresh);
-
-
-
-
-
-  //THE TEXTURE
-
-  glEnable(GL_TEXTURE_3D);
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_3D, tex);
-
-  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-
-  std::vector<unsigned char> noise_data;
-  noise_data.clear();
-
-  PerlinNoise p;
-  unsigned char sample;
-
-  cout << " loading cloud texture" << endl;
-
-
-  for(int x = 0; x < 256; x++)
-  {
-    for(int y = 0; y < 256; y++)
-    {
-      for(int z = 0; z < 256; z++)
-      {
-
-
-        // if((x % 15 < 3) || (y % 20 < 3) || (z % 30 < 4))
-        // {
-        //   noise_data.push_back(0);
-        //   noise_data.push_back(0);
-        //   noise_data.push_back(0);
-        //   noise_data.push_back(255);
-        // }
-        // else
-        // {
-          sample = 255 * p.noise(0.4 * x, 0.4 * y, 0.4 * z);
-          // cout << sample;
-          noise_data.push_back(sample);
-          sample = 255 * p.noise(0.2 * x, 0.2 * y, 0.2 * z);
-
-          noise_data.push_back(sample);
-
-          sample = 255 * p.noise(0.1 * x, 0.1 * y, 0.1 * z);
-          noise_data.push_back(sample);
-
-          sample = 100 * p.noise(0.05 * x, 0.05 * y, 0.05 * z);
-          noise_data.push_back(sample);
-        // }
-      }
-    }
-  }
-
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, 256, 256, 256, 0,  GL_RGBA, GL_UNSIGNED_BYTE, &noise_data[0]);
-
-  glGenerateMipmap(GL_TEXTURE_3D);
-
-  cout << "\r loaded cloud texture " << endl;
-
-
-  glPointSize(GLOBAL_POINTSIZE);
-
-}
-
-  //****************************************************************************
-  //  Function: CloudModel::generate_points()
-  //
-  //  Purpose:
-  //    This function produces all the data for representing this object.
-  //****************************************************************************
-
-void CloudModel::generate_points()
-{
-  //GENERATING GEOMETRY
-
-  glm::vec3 a, b, c, d;
-
-  // float scale = 0.9f;
-  float scale = 1.618f;
-
-  a = glm::vec3(-1.0f*scale, -1.0f*scale, 0.0f);
-  b = glm::vec3(-1.0f*scale, 1.0f*scale, 0.0f);
-  c = glm::vec3(1.0f*scale, -1.0f*scale, 0.0f);
-  d = glm::vec3(1.0f*scale, 1.0f*scale, 0.0f);
-
-  for(int i = 0; i < 64; i++)
-  {
-    a += glm::vec3(0.0f, 0.0f, 0.01f);
-    b += glm::vec3(0.0f, 0.0f, 0.01f);
-    c += glm::vec3(0.0f, 0.0f, 0.01f);
-    d += glm::vec3(0.0f, 0.0f, 0.01f);
-    //first triangle
-    points.push_back(a);
-    points.push_back(b);
-    points.push_back(c);
-    //second triangle
-    points.push_back(b);
-    points.push_back(c);
-    points.push_back(d);
-  }
-
-  num_pts = points.size();
-
-  // cout << "num_pts is " << num_pts << endl;
-
-}
-
-void CloudModel::subd_square(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
-{
-  if(glm::distance(a, b) < 1)
-  {//add points
-    //triangle 1 ABC
-
-
-    //middle
-    // points.push_back((a+b+c+d)/4.0f);
-  }
-  else
-  { //recurse
-    glm::vec3 center = (a + b + c + d) / 4.0f;    //center of the square
-
-    glm::vec3 bdmidp = (b + d) / 2.0f;            //midpoint between b and d
-    glm::vec3 abmidp = (a + b) / 2.0f;            //midpoint between a and b
-    glm::vec3 cdmidp = (c + d) / 2.0f;            //midpoint between c and d
-    glm::vec3 acmidp = (a + c) / 2.0f;            //midpoint between a and c
-
-    subd_square(abmidp, b, center, bdmidp);
-    subd_square(a, abmidp, acmidp, center);
-    subd_square(center, bdmidp, cdmidp, d);
-    subd_square(acmidp, center, c, cdmidp);
-  }
-}
-
-
-
-
-  //****************************************************************************
-  //  Function: CloudModel::display()
-  //
-  //  Purpose:
-  //    This function does all the setup for the buffers and uniforms and then
-  //    issues a draw call for the geometry representing this object
-  //****************************************************************************
-
-void CloudModel::display()
-{
-  glBindVertexArray(vao);
-  glUseProgram(shader_program);
-
-
-  glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
-  glBindTexture(GL_TEXTURE_3D, tex);
-
-  glUniform1i(uTime, time);
-  glUniformMatrix4fv(uProj, 1, GL_FALSE, glm::value_ptr(proj));
-  glUniform1f(uThresh, thresh);
-
-  // glDrawArrays(GL_POINTS, 0, num_pts);
-
-  glDrawArrays(GL_TRIANGLES, 0, num_pts);
 }
